@@ -204,3 +204,87 @@ gameLib:addSprite(lvl: string, img: table, priority: number|nil, x: number|nil, 
 >x: x position of the Sprite (will start rendering at that x pos). defaults to 1 if not provided
 
 >y: y position of the sprite (will start rendering at that y pos). defaults to 1 if not provided
+
+<br><br><br>
+
+```lua
+gameLib:addHologram(lvl: string, text: string, textColor: table|nil, textBackgroundColor: table|nil, priority: number|nil, x: number|nil, y: number|nil, dynamic: boolean|nil, wrapped: boolean|nil)
+```
+##### description:
+###### adds a Hologram/Text to the render
+##### arguments:
+>lvl: is a string that gives it the hierarchy e.g: "test.string"
+
+>text: is the text that is going to be displayed
+
+>textColor: is the text color of the displayed Text. If nil defaults to colors.white
+
+>textBackgroundColor: is the background color of the displayed Text. If not supplied will render with background Color of background
+
+>priority: level of priority when rendering will default to the highest when nil higher priority gets rendered over lower
+
+>x: X position of the Hologram (will print at that x pos). defaults to 1 if not provided
+
+>y: Y position of the Hologram (will print at that y pos). defaults to 1 if not provided
+
+>dynamic: if false will render it behind every sprite but it can not adjust to the sprite background colors. doesn't change the way it collides! will default to true if not provided
+
+>wrapped: if false won't wrap the text when to big (smart wrapping: wraps at last space if there is one in the current line otherwise wraps to screen size). will default to true if not provided
+
+<br><br><br>
+
+```lua
+gameLib:changeSpriteData(lvl: string, img: table|nil, x: number|nil, y: number|nil)
+```
+##### description:
+###### lets you manipulate all data of an existing Sprite
+##### arguments:
+>lvl: is a string that gives it the hierarchy e.g: "test.string"
+
+>img: is the sprite that will be displayed can be loaded from .nfp file through gameLib:loadImage won't change if not supplied
+
+>x: X position on screen that it starts to be rendered at. Won't change if not supplied
+
+>y: Y position on screen that it starts to be rendered at. Won't change if not supplied
+
+<br><br><br>
+
+```lua
+gameLib:changeHologramData(lvl: string, text: string|nil, textColor: table|nil, textBackgroundColor: table|nil, x: number|nil, y: number|nil, wrapped: boolean|nil)
+```
+##### description:
+###### lets you manipulate all data fo an existing Hologram
+##### arguments:
+>lvl: is a string that gives it the hierarchy e.g: "test.string"
+
+>text: is the text that is being displayed. Won't change if not supplied
+
+>textColor: is the color of the displayed text won't change if not supplied
+
+>textBackgroundColor: is the background color of the text that is being displayed. Won't change if not supplied
+
+>x: X position on screen that it gets written at. Won't change if not supplied
+
+>y: Y position on screen that it gets written at. Won't change if not supplied
+
+>wrapped: if false won't wrap the text when to big (smart wrapping: wraps at last space if there is one in the current line otherwise wraps to screen size). Won't change if not supplied
+
+<br><br><br>
+
+```lua
+gameLib:cloneObject(lvl: string, priority: number|nil, x: number|nil, y: number|nil, groupClones: boolean|nil)
+```
+##### description:
+###### allows you to make a clone of a sprite this wll create a object that share the same texture as it's parent object
+##### arguments:
+>lvl: is the string that gives it the hierarchy to clone e.g:"test.string" (only sprites)
+
+>priority: level of priority when rendering will default to the highest when nil higher priority gets rendered over lower. can not be the priority of thr original sprite
+
+>x: X position of the Sprite (will start rendering at that x pos). defaults to 1 if not provided
+
+>y: Y position of the Sprite (will start rendering at that x pos). defaults to 1 if not provided
+
+>groupClones: if true will create/add objects to a group named: lvl+".spriteClone.group"  (e.g: "test.string.spriteClone.group") consisting of the parent object and all it's spriteClones (useful for checking for collisions of parent and spriteClones). defaults to false if not provided
+
+<br><br><br>
