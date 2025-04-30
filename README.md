@@ -407,7 +407,7 @@ gameLib:render()
 ### added foot notes
 
 <p>
-I've added a folder that contains all assets and scripts for  a  game called tunnelRunner.lua!<br>
+I've added a folder that contains all assets and scripts for  a  game called tunnelRunner.lua! to view click [here](https://github.com/Redtech0inc/TDGameLib/tree/main/0)<br>
 it's built to be on a disk<br>
 <font color="red">will not work outside of a disk due to many references to directories with "disk/" in the beginning</font>
 </p>
