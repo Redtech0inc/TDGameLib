@@ -134,3 +134,73 @@ gameLib:loadImage(imgDir: string)
 
 ##### Returns:
 >image: the image as Matrix made of color values (read about color values [here](https://tweaked.cc/module/colors.html))
+
+<br><br><br>
+
+```lua
+gameLib:getShapeSprite(shape: string|nil, width: number|nil, height: number|nil, color: number, rightAngled: boolean|nil, side: string|nil)
+```
+##### description:
+###### generates a sprite of geometric shapes
+##### arguments:
+>shape: is the geometric shape which you want ot generate a sprite for e.g: "circle","triangle","square"
+
+>width: is the width/radius(if it's a circle) of the shape must be provided for shapes: "square" & "circle"
+
+>height: is the height of the shape must be provided for shapes: "square" & "triangle"
+
+>color: is the color of the shape
+
+>rightAngled: will make a triangle right angled. Will default to false if not provided
+
+>side: will determine if the upper or lower half of the right angled triangle is given. Will default to "lower" if not provided
+
+##### Returns:
+>img: is the image matrix of the shape
+
+<br><br><br>
+
+```lua
+gameLib:turnSprite(sprite: table, times: number)
+```
+##### description:
+###### lets you turn the given sprite in increments of 90 Degrees by the number of times you inputted
+##### arguments:
+>sprite: is the sprite that gets turned
+
+>times: is the amount of times it will iterate of rotations of 90 degrees
+
+##### Returns:
+>sprite: is the rotated matrix of the sprite
+
+<br><br><br>
+
+```lua
+gameLib:setBackgroundImage(img: table)
+```
+##### description:
+###### lets you set a background via gameLib:loadImage advised to be the length & width of the terminal
+##### arguments:
+>img: matrix give by gameLib:loadImage
+
+<br>
+
+#### object based functions
+
+<br>
+
+```lua
+gameLib:addSprite(lvl: string, img: table, priority: number|nil, x: number|nil, y: number|nil)
+```
+##### description:
+###### adds a Sprite to the render
+##### arguments:
+>lvl: is a string that gives it the hierarchy e.g: "test.string"
+
+>img: is the sprite of the game as matrix can be loaded using gameLib:loadImage
+
+>priority: level of priority when rendering will default to the highest when nil higher priority gets rendered over lower
+
+>x: x position of the Sprite (will start rendering at that x pos). defaults to 1 if not provided
+
+>y: y position of the sprite (will start rendering at that y pos). defaults to 1 if not provided
