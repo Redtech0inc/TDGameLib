@@ -401,3 +401,13 @@ gameLib:render()
 ```
 ##### description:
 ###### lets you render the game
+
+<br><br><br>
+
+### added foot notes
+
+<p>
+I've added a folder that contains all assets and scripts for  a  game called tunnelRunner.lua!<br>
+it's built to be on a disk<br>
+<font color="red">will not work outside of a disk due to many references to directories with "disk/" in the beginning</font>
+</p>
