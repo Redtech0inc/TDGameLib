@@ -5,5 +5,5 @@ please Download:<br>
 
 <br><br><br>
 
-<b>then put it inside a folder of a disk and execut5e it</b>
+<b>then put it inside a folder of a disk and execute it</b>
 
