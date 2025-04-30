@@ -25,7 +25,7 @@ now to create an actual "game" you have to make an object that holds all the dat
 local namespace = TDgameLib.gameLib:create(arguments... )
 ```
 
-which will then cerate an object under your **namespace**
+which will then create an object under your **namespace**
 
 <p> for this case i will call the object 'gameLib'</p>
 
