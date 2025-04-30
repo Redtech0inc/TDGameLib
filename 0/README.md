@@ -5,6 +5,5 @@ please Download:<br>
 
 <br><br><br>
 
-then put it inside a folder of a disk and run:<br>
-<b>disk/tunnelRunner.lua</b><br>
-in the console of the computer
+<b>then put it inside a folder of a disk and execut5e it</b>
+
