@@ -2,12 +2,12 @@
 ## About the TDGameLib
 
 
-### ---------------info---------------
+### info
 this is a library to make games easier to develop in CCTweaked (minecraft mod)<br><br>
 
 made for CCTweaked Versions 1.16.x to 1.20.x
 
-### ---------------how to set up---------------
+### how to set up
 start by adding the package to your project via<br><br>
 ```lua
 os.loadAPI("TDGameLib.lua")
@@ -29,7 +29,7 @@ which will then create an object under your **namespace**
 
 <p> for this case i will call the object 'gameLib'</p>
 
-### ---------------functions---------------
+### functions
 
 #### Game FrameWork based functions
 ```lua
