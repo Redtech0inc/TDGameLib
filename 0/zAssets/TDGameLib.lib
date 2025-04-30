@@ -1,0 +1,1321 @@
+local function isColorValue(colorValue)
+    local colorTable={
+        colors.white, colors.orange, colors.magenta, colors.lightBlue,
+        colors.yellow, colors.lime, colors.pink, colors.gray,
+        colors.lightGray, colors.cyan, colors.purple, colors.blue,
+        colors.brown, colors.green, colors.red, colors.black,
+    }
+    for color=1,#colorTable do
+        if colorTable[color] == colorValue then
+            return true
+        end
+    end
+    return false
+end
+local function getFileLines(dir)
+    if not fs.exists(dir) then error("'"..dir.."' is not an existing file") end
+    local file=io.open(dir,"r")
+    local output={}
+    while true do
+        local line=file:read("l")
+        if line ~= nil then
+            table.insert(output,line)
+        else
+            return output
+        end
+    end
+end
+local function writeToFile(file,text,indents,nextLine,compact)
+    if not compact then
+        for i=1,indents do
+            file:write("    ")
+        end
+    end
+    file:write(tostring(text))
+    if nextLine and not compact then
+        file:write("\n")
+    elseif compact then
+        file:write(" ")
+    end
+end
+gameLib={}
+gameLib.__index=gameLib
+function gameLib:drawPixel(x, y, color)
+    if self.gameMEM.monitor then
+        self.gameMEM.monitor.setCursorPos(x, y)
+        self.gameMEM.monitor.setBackgroundColor(color)
+        self.gameMEM.monitor.write(" ")
+    else
+        term.setCursorPos(x, y)
+        term.setBackgroundColor(color)
+        term.write(" ")
+    end
+end
+function gameLib:createSubTables(lvl)
+    local keys = {}
+    for key in lvl:gmatch("[^.]+") do
+        table.insert(keys, key)
+    end
+    local node = self.gameMEM
+    for i = 1, #keys do
+        local key = keys[i]
+        if node[key] == nil then
+            node[key] = {}
+        end
+        node = node[key]
+    end
+end
+function gameLib:getSubTable(lvl,returnLast)
+    if returnLast == nil then returnLast=true end
+    local keys = {}
+    for key in lvl:gmatch("[^.]+") do
+        table.insert(keys, key)
+    end
+    local node = self.gameMEM
+    for i = 1, #keys - 1 do
+        local key = keys[i]
+        if node[key] == nil then
+            node[key] = {}
+        end
+        node = node[key]
+    end
+    if returnLast then
+        return node[keys[#keys]]
+    else
+        return node,keys
+    end
+end
+function gameLib:isSubTable(lvl,intro)
+    local keys = {}
+    local node
+    for key in lvl:gmatch("[^.]+") do
+        table.insert(keys, key)
+    end
+    if intro then
+        node = intro
+    else
+        node=self.gameMEM
+    end
+    for i = 1, #keys do
+        local key = keys[i]
+        if node[key] == nil then
+            return false
+        end
+        node = node[key]
+    end
+    return true
+end
+function gameLib:wrapHologramText(text,x)
+    local text = tostring(text)
+    local textTable = {}
+    local line = ""
+    for word in text:gmatch("%S+") do
+        if #word > self.gameMEM.screenWidth-(x-1) then
+            if #line > 0 then
+                table.insert(textTable, line.." ")
+                line = ""
+            end
+            while #word > self.gameMEM.screenWidth-(x-1) do
+                table.insert(textTable, word:sub(1, self.gameMEM.screenWidth-(x-1)))
+                word = word:sub(self.gameMEM.screenWidth-(x-1) + 1)
+            end
+            line = word
+        elseif #line + #word + 1 > self.gameMEM.screenWidth-(x-1) then
+            table.insert(textTable, line)
+            line = word
+        else
+            if #line > 0 then
+                line = line .. " " .. word
+            else
+                line = word
+            end
+        end
+    end
+    if #line > 0 then
+        table.insert(textTable, line)
+    end
+    local maxWidth = 0
+    for i=1,#textTable do
+        if #textTable[i] > maxWidth then
+            maxWidth=#textTable[i]
+        end 
+    end
+    return textTable, maxWidth
+end
+function gameLib:updateRenderLists()
+    self.gameMEM.objects.render.renderList.backgroundHolograms={}
+    for i=1,#self.gameMEM.objects.render.list.backgroundHolograms do
+        if self.gameMEM.objects.render.list.backgroundHolograms[i] ~= nil then
+            self.gameMEM.objects.render.renderList.backgroundHolograms[self.gameMEM.objects.render.list.backgroundHolograms[i][2]] = self.gameMEM.objects.render.list.backgroundHolograms[i][1]
+        end
+    end
+    self.gameMEM.objects.render.listLen.backgroundHolograms = #self.gameMEM.objects.render.list.backgroundHolograms
+    self.gameMEM.objects.render.renderList.sprites={}
+    for i=1,#self.gameMEM.objects.render.list.sprites do
+        if self.gameMEM.objects.render.list.sprites[i] ~= nil then
+            self.gameMEM.objects.render.renderList.sprites[self.gameMEM.objects.render.list.sprites[i][2]] = self.gameMEM.objects.render.list.sprites[i][1]
+        end
+    end
+    self.gameMEM.objects.render.listLen.sprites = #self.gameMEM.objects.render.list.sprites
+    self.gameMEM.objects.render.renderList.holograms={}
+    for i=1,#self.gameMEM.objects.render.list.holograms do
+        if self.gameMEM.objects.render.list.holograms[i] ~= nil then
+            self.gameMEM.objects.render.renderList.holograms[self.gameMEM.objects.render.list.holograms[i][2]] = self.gameMEM.objects.render.list.holograms[i][1]
+        end
+    end
+    self.gameMEM.objects.render.listLen.holograms = #self.gameMEM.objects.render.list.holograms
+end
+function gameLib:create(gameName,useMonitor,monitorFilter,pixelSize,screenStartX,screenStartY)
+    local gameENV = {}
+    screenStartX = screenStartX or 1
+    screenStartY = screenStartY or 1
+    local width, height
+    local monitor
+    if useMonitor then
+        monitor = peripheral.find("monitor",function(name, monitor)
+            if monitorFilter then 
+                for i =1,#monitorFilter do
+                    if name == monitorFilter[i] then
+                        return true
+                    end
+                end
+                return false
+            end
+            return true
+        end)
+        if not monitor then
+            if monitorFilter then
+                error("could not find monitor, make sure that a monitor named:"..textutils.serialise(monitorFilter,{compact=true}).." is attached or disable the useMonitor variable")
+            else
+                error("could not find monitor, make sure that a monitor is attached or disable the useMonitor variable")
+            end
+        end
+        if type(pixelSize) == "number" then
+            if pixelSize >= 0.5 and pixelSize <= 5 then 
+                monitor.setTextScale(pixelSize) 
+            else
+                error("Screen size must be in range of 0.5 to 5")
+            end
+        end
+        width, height = monitor.getSize()
+    else
+        width, height = term.getSize()
+    end
+    local gameName = tostring(gameName) or "Game"  
+    gameENV.gameMEM = {LVL={background={}}}
+    for i = 1,width do
+        gameENV.gameMEM.LVL.background[i] = {}
+        for j = 1,height do
+            gameENV.gameMEM.LVL.background[i][j] = colors.black
+        end
+    end
+    setmetatable(gameENV, self)
+    self.__index = self
+    local tablesToRegister={"objects.render.list.","objects.render.renderList."}
+    for i=1,#tablesToRegister do
+        gameENV:createSubTables(tablesToRegister[i].."backgroundHolograms")
+        gameENV:createSubTables(tablesToRegister[i].."sprites")
+        gameENV:createSubTables(tablesToRegister[i].."holograms")
+    end
+    gameENV:createSubTables("groups.list")
+    gameENV:createSubTables("clones.list")
+    gameENV:createSubTables("LVL.screen")
+    gameENV:setGameMEMValue("objects.render.listLen.backgroundHolograms",-1)
+    gameENV:setGameMEMValue("objects.render.listLen.sprites",-1)
+    gameENV:setGameMEMValue("objects.render.listLen.holograms",-1)
+    gameENV:setGameMEMValue("gameName",gameName)
+    gameENV:setGameMEMValue("screenWidth",width-(screenStartX-1))
+    gameENV:setGameMEMValue("screenHeight",height-(screenStartY-1))
+    gameENV:setGameMEMValue("renderStartX",screenStartX-1)
+    gameENV:setGameMEMValue("renderStartY",screenStartY-1)
+    gameENV:setGameMEMValue("monitor",monitor)
+    return gameENV
+end
+function gameLib:quit(restart,exitMessage,exitMessageColor)
+    if type(restart) ~= "boolean" then
+        restart=false
+    end
+    if not isColorValue(exitMessageColor)  then
+        exitMessageColor = colors.white
+    end
+    if self.gameMEM.monitor then
+        self.gameMEM.monitor.setTextScale(1)
+    end
+    if not restart then
+        if self.gameMEM.monitor then
+            self.gameMEM.monitor.clear()
+            self.gameMEM.monitor.setCursorPos(1,1)
+        end
+        term.clear()
+        term.setCursorPos(1,1)
+        if exitMessage then
+            local currentTextColor= term.getTextColor()
+            term.write(self.gameMEM.gameName..": ")
+            term.setTextColor(exitMessageColor)
+            print(exitMessage)
+            term.setTextColor(currentTextColor)
+        end
+        setmetatable(self, {
+            __index = function()
+                return
+            end
+        })
+        sleep(0.2)
+    else
+        os.reboot()
+    end
+end
+function gameLib:useDataFile(fileDir)
+    if not fs.exists(fileDir) then error("'"..tostring(fileDir).."' is not an existing File") return end
+    local index={data={"<body>","</body>" , "<background>","</background>","<sprites>","</sprites>","<clones>","</clones>","<holograms>","</holograms>","<groups>","</groups>" , "<object>","</object>","<image>","</image>","<br>"}, lua={"{","}" , "background={","},","sprites={","},","clones={","},","holograms={","},","groups={","}," , "{","},","{{","}}","},{"}}
+    local output = ""
+    local fileOver = false
+    for line in io.lines(fileDir) do
+        if not fileOver then
+            for i=1,#index.data do
+                if string.find(line,"</body>",nil,true) then
+                    fileOver=true
+                end
+            line = string.gsub(line,index.data[i],index.lua[i])
+            end
+            while string.find(line,"<",nil,true) do
+                local startTag=string.find(line,"<",nil,true) or 1
+                local stopTag =string.find(line,">",nil,true) or #line
+                line = string.gsub(line, string.sub(line,startTag,stopTag), "")
+            end
+        else
+            line=""
+        end
+        output = output .. line
+    end
+    if textutils.unserialise(output) then
+        output = textutils.unserialise(output)
+    else
+        error("'"..tostring(fileDir).."' doesn't contain valid Data!")
+    end
+    if output.background then
+        self:setBackgroundImage(output.background[1])
+    end
+    if output.sprites then
+        for i=1,#output.sprites do
+            self:addSprite(output.sprites[i][1],output.sprites[i][2],output.sprites[i][3],output.sprites[i][4],output.sprites[i][5])
+        end
+    end
+    if output.clones then
+        for i=1,#output.clones do
+            self:cloneSpriteObject(output.clones[i][1],output.clones[i][2],output.clones[i][3],output.clones[i][4])
+        end
+    end
+    if output.holograms then
+        for i=1,#output.holograms do
+            self:addHologram(output.holograms[i][1],output.holograms[i][2],output.holograms[i][3],output.holograms[i][4],output.holograms[i][5],output.holograms[i][6],output.holograms[i][7],output.holograms[i][8],output.holograms[i][8])
+        end
+    end
+    if output.groups then
+        for i=1,#output.groups do
+            self:groupObjects(output.groups[i][1],output.groups[i][2])
+        end
+    end
+end
+function gameLib:makeDataFile(fileDir,compact)
+    local data = {}
+    if self:isSubTable("LVL.background") then
+        data.background={}
+        for i=1,#self.gameMEM.LVL.background do
+            data.background[i]={}
+            for j=1,table.maxn(self.gameMEM.LVL.background[i]) do
+                data.background[i][j] = self.gameMEM.LVL.background[i][j]
+            end
+        end
+    end
+    if #self.gameMEM.objects.render.list.sprites > 0 then
+        data.sprites={}
+        local list = self.gameMEM.objects.render.list.sprites
+        for i=1,#self.gameMEM.objects.render.list.sprites do
+            local node = self:getSubTable(list[i][1])
+            if node and node.type == "sprite" then
+                table.insert(data.sprites, {list[i][1], node.sprite, list[i][2], node.x, node.y})
+            elseif node and node.type == "clone" then
+                if data.clones == nil then
+                    data.clones ={}
+                end
+                table.insert(data.clones, {node.sprite, list[i][2], node.x, node.y})
+            end
+        end
+    end
+    if #self.gameMEM.objects.render.list.holograms > 0 then
+        data.holograms={}
+        local list = self.gameMEM.objects.render.list.holograms
+        for i=1,#self.gameMEM.objects.render.list.holograms do
+            local node = self:getSubTable(list[i][1])
+            local textOut
+            if node then
+                for j=1, #node.text do
+                    if j ~= 1 then
+                        textOut = textOut .. node.text[j]
+                    else
+                        textOut = node.text[j]
+                    end
+                end
+                table.insert(data.holograms, {list[i][1], textOut, node.textColor, node.textBackgroundColor, list[i][2], node.x, node.y})
+            end
+        end
+    end
+    if #self.gameMEM.objects.render.list.backgroundHolograms > 0 then
+        if not data.holograms then
+            data.holograms={}
+        end
+        local list = self.gameMEM.objects.render.list.backgroundHolograms
+        for i=1,#self.gameMEM.objects.render.list.backgroundHolograms do
+            local node = self:getSubTable(list[i][1])
+            local textOut
+            if node then
+                for j=1, #node.text do
+                    if j ~= 1 then
+                        textOut = textOut .. " " .. node.text[j]
+                    else
+                        textOut = node.text[j]
+                    end
+                end
+                table.insert(data.holograms, {list[i][1], textOut, node.textColor, node.textBackgroundColor, list[i][2], node.x, node.y, false})
+            end
+        end
+    end
+    if self:isSubTable("groups.list") then
+        data.groups = {}
+        local list = self.gameMEM.groups.list
+        for i=1,#self.gameMEM.groups.list do
+            local node = self:getSubTable(list[i])
+            if node then
+                table.insert(data.groups, {list[i], node.lvlTable})
+            end
+        end
+    end
+    local file=io.open(fileDir,"w")
+    writeToFile(file,"<body>",0,true,compact)
+    if data.background then
+        local backgroundString=textutils.serialise(data.background,{compact=true})
+        writeToFile(file,"<background>",1,true,compact)
+        backgroundString = string.gsub(backgroundString, "{{","<image>")
+        while string.find(backgroundString,"},{",nil,true) do
+            backgroundString=string.gsub(backgroundString,"},{","<br>")
+        end
+        backgroundString = string.gsub(backgroundString, "},}","</image>")
+        writeToFile(file,backgroundString,2,true,compact)
+        writeToFile(file,"</background>",1,true,compact)
+    end
+    if data.sprites  then
+        writeToFile(file,"<sprites>",1,true,compact)
+        for i=1,#data.sprites do
+            writeToFile(file,"<object>",2,true,compact)
+            if not compact then
+                file:write("            ")
+            end
+            for j=1,5 do
+                if type(data.sprites[i][j]) == "string" then
+                    file:write("\""..tostring(data.sprites[i][j]).."\", ")
+                elseif type(data.sprites[i][j]) == "table" then
+                    local imageString=textutils.serialise(data.sprites[i][j],{compact=true})
+                    imageString = string.gsub(imageString, "{{","<image>")
+                    while string.find(imageString,"},{",nil,true) do
+                        imageString=string.gsub(imageString,"},{","<br>")
+                    end
+                    imageString = string.gsub(imageString, "},}","</image>")
+                    file:write(imageString..", ")
+                else
+                    file:write(tostring(data.sprites[i][j])..", ")
+                end
+            end
+            if not compact then
+                file:write("\n")
+            end
+            writeToFile(file,"</object>",2,true,compact)
+        end
+        writeToFile(file,"</sprites>",1,true,compact)
+    end
+    if data.clones  then
+        writeToFile(file,"<clones>",1,true,compact)
+        for i=1,#data.clones do
+            writeToFile(file,"<object>",2,true,compact)
+            if not compact then
+                file:write("            ")
+            end
+            for j=1,4 do
+                if type(data.clones[i][j]) == "string" then
+                    file:write("\""..tostring(data.clones[i][j]).."\", ")
+                else
+                    file:write(tostring(data.clones[i][j])..", ")
+                end
+            end
+            if not compact then
+                file:write("\n")
+            end
+            writeToFile(file,"</object>",2,true,compact)
+        end
+        writeToFile(file,"</clones>",1,true,compact)
+    end
+    if data.holograms then
+        writeToFile(file,"<holograms>",1,true,compact)
+        for i=1,#data.holograms do
+            writeToFile(file,"<object>",2,true,compact)
+            if not compact then
+                file:write("            ")
+            end
+            for j=1,9 do
+                if type(data.holograms[i][j]) == "string" then
+                    file:write("\""..data.holograms[i][j].."\", ")
+                elseif type(data.holograms[i][j]) == "table" then
+                    file:write(textutils.serialise(data.holograms[i][j],{compact=true})..", ")
+                else
+                    file:write(tostring(data.holograms[i][j])..", ")
+                end
+            end
+            writeToFile(file,"",0,true,compact)
+            writeToFile(file,"</object>",2,true,compact)
+        end
+        writeToFile(file,"</holograms>",1,true,compact)
+    end
+    if data.groups then
+        writeToFile(file,"<groups>",1,true,compact)
+        for i=1,#data.groups do
+            writeToFile(file,"<object>",2,true,compact)
+            if not compact then
+                file:write("            ")
+            end
+            for j=1,2 do
+                if type(data.groups[i][j]) == "string" then
+                    file:write("\""..data.groups[i][j].."\", ")
+                elseif type(data.groups[i][j]) == "table" then
+                    file:write("<object> ")
+                    for k=1,#data.groups[i][j] do
+                        file:write("\""..tostring(data.groups[i][j][k]).."\", ")
+                    end
+                    writeToFile(file,"</object>",0,true,compact)
+                end
+            end
+            writeToFile(file,"</object>",2,true,compact)
+        end
+        writeToFile(file,"</groups>",1,true,compact)
+    end
+    writeToFile(file,"</body>",0,false,compact)
+    file:close()
+end
+function gameLib:setGameMEMValue(lvl, value)
+    local node, keys = self:getSubTable(lvl,false)
+    node[keys[#keys]] = value
+end
+function gameLib:getGameMEMValue(place)
+    if place ~= nil then
+        return self:getSubTable(place)
+    else
+        return self.gameMEM
+    end
+end
+function gameLib:loadImage(imgDir)
+    if not fs.exists(imgDir) then error("'"..tostring(imgDir).."' is not an existing File") return end
+    local img={}
+    local fileLines = getFileLines(imgDir)
+    for i=1,#fileLines do
+        if img[i] == nil then
+            img[i]={}
+        end
+        for j=1,#fileLines[i] do
+            if type(fileLines[i]) == "string" then
+                table.insert(img[i],string.sub(fileLines[i],j,j))
+            end
+        end
+    end
+    local newImg={}
+    for i=1,#img do
+        for j=1,table.maxn(img[i]) do
+            if newImg[j] == nil then
+                newImg[j]={}
+            end
+            newImg[j][i]=colors.fromBlit(img[i][j])
+        end
+    end
+    return newImg
+end
+function gameLib:getShapeSprite(shape,width,height,color,rightAngled,side)
+    local shapeSprite = {}
+    if shape == "circle" then
+        local center = width + 1
+        for i= 1, 2*width + 1 do
+            shapeSprite[i]={}
+            for j= 1, 2*width+1 do
+                local dx = j - center
+                local dy = i - center
+                if dx * dx + dy * dy <= width * width then
+                    shapeSprite[i][j] = color
+                end
+            end
+        end
+    elseif shape == "triangle" then
+        if rightAngled then
+            for i = 1, height do
+                shapeSprite[i] = {}
+                for j = 1, height do
+                    if j <= i and (not side) or side == "upper" then
+                        shapeSprite[i][j] = color
+                    elseif j >= i and side then
+                        shapeSprite[i][j] = color
+                    end
+                end
+            end
+        else
+            shapeSprite = {}
+            local centerX = height
+            for i = 1,height do
+                for j = 1,height * 2 do
+                    if not shapeSprite[j] then
+                        shapeSprite[j] = {}
+                    end
+                    if j >= centerX - (i-1) and j<= centerX + (i-1) then
+                        shapeSprite[j][i] = color
+                    end
+                end
+            end
+        end
+    else
+        for i=1,width do
+            shapeSprite[i]={}
+            for j=1,height do
+                shapeSprite[i][j]=color
+            end
+        end
+    end
+    return shapeSprite
+end
+function gameLib:turnSprite(sprite, times)
+    if not sprite then error("the sprite variable has to be a 2D Image(Matrix)") end
+    if type(times) ~= "number" then times = 0 end
+    for _ = 1, times do
+        local rotated = {}
+        local rows = #sprite
+        local maxCol = 0
+        for i = 1, #sprite do
+            maxCol = math.max(maxCol, #sprite[i])
+        end
+        for x = 1, maxCol do
+            rotated[x] = {}
+            for y = rows, 1, -1 do
+            rotated[x][rows - y + 1] = sprite[y][x] or nil
+            end
+        end
+        sprite={}
+        for i=1,#rotated do
+            sprite[i]={}
+            for j=1,table.maxn(rotated[i]) do
+                sprite[i][j] = rotated[i][j]
+            end
+        end
+    end
+    return sprite
+end
+function gameLib:setBackgroundImage(img)
+    self.gameMEM.LVL.background=img
+end
+function gameLib:addSprite(lvl,img,priority,x,y)
+    self:createSubTables("objects.render.list.sprites")
+    if type(img) ~= "table" then error("image has to be a table ('"..type(img).."' was supplied)") end
+    if type(priority) ~= "number" then
+        priority=#self.gameMEM.objects.render.list.sprites+1
+    end
+    if type(x) ~= "number" then
+        x=1
+    end
+    if type(y) ~= "number" then
+        y=1
+    end
+    if x < 1-#img or x > self.gameMEM.screenWidth then
+        x=1
+    end
+    if y < 1-table.maxn(img[1]) or y > self.gameMEM.screenHeight then
+        y=1
+    end
+    local node, keys=self:getSubTable(lvl,false)
+    node[keys[#keys]] = {type="sprite", sprite=img, x=math.floor(x), y=math.floor(y), elementNum=#self.gameMEM.objects.render.list.sprites+1}
+    table.insert(self.gameMEM.objects.render.list.sprites,{lvl,priority})
+end
+function gameLib:cloneSpriteObject(lvl,priority,x,y,groupClones)
+    local node =self:getSubTable(lvl)
+    if node.type ~= "sprite" then error("input object must be a sprite") end
+    self:updateRenderLists()
+    if type(priority) ~= "number" then
+        priority=#self.gameMEM.objects.render.list.sprites+1
+    end
+    if self.gameMEM.objects.render.renderList.sprites[priority] == lvl then error("can't override the original sprite") end
+    local img = node.sprite
+    if type(x) ~= "number" then
+        x=1
+    end
+    if type(y) ~= "number" then
+        y=1
+    end
+    if x < 1-#img or x > self.gameMEM.screenWidth then
+        x=1
+    end
+    if y < 1-table.maxn(img[1]) or y > self.gameMEM.screenHeight then
+        y=1
+    end
+    self:createSubTables("clones.list."..lvl)
+    local cloneObj = self:getSubTable("clones.list."..lvl)
+    local name = lvl..".clone"..#cloneObj+1
+    if groupClones and not self:isSubTable(lvl..".clone.group") then
+        self:groupObjects(lvl..".clone.group",{lvl,name})
+    elseif groupClones then
+        self:addObjectToGroup(lvl..".clone.group",{name})
+    end
+    local node, keys=self:getSubTable(name,false)
+    node[keys[#keys]]={type="clone", sprite=lvl, x=math.floor(x), y=math.floor(y), elementNum=#self.gameMEM.objects.render.list.sprites+1}
+    table.insert(self.gameMEM.objects.render.list.sprites,{name,priority})
+    table.insert(cloneObj,name)
+end
+function gameLib:addHologram(lvl,text,textColor,textBackgroundColor,priority,x,y,dynamic,wrapped)
+    if dynamic == nil then dynamic = true end
+    if wrapped == nil then wrapped = true end
+    self:createSubTables("objects.render.list.holograms")
+    if type(priority) ~= "number" then
+        if dynamic then
+            priority=#self.gameMEM.objects.render.list.holograms+1
+        else
+            priority=#self.gameMEM.objects.render.list.backgroundHolograms+1
+        end
+    end
+    if type(x) ~= "number" then
+        x=1
+    end
+    if type(y) ~= "number" then
+        y=1
+    end
+    if type(textColor) ~= "table" then
+        textColor={white=1}
+    end
+    if type(textBackgroundColor) ~= "table" then
+        textBackgroundColor = nil
+    end
+    local textOut, textMaxWidth, correctionsCycles
+    if wrapped then correctionsCycles=3 else correctionsCycles = 1 end
+    for i=1,correctionsCycles do
+        if wrapped then
+            textOut, textMaxWidth = self:wrapHologramText(text,x)
+        else
+            textOut = {text}
+            textMaxWidth = #text
+        end
+        if x < 1-textMaxWidth or x > self.gameMEM.screenWidth then
+            x=1
+        end
+        if y < 1 or y > self.gameMEM.screenHeight then
+            y=1
+        end
+    end
+    local node, keys=self:getSubTable(lvl,false)
+    node[keys[#keys]] = {type="hologram", dynamic=dynamic, text=textOut, textMaxWidth=textMaxWidth, textColor=textColor, textBackgroundColor=textBackgroundColor, x=math.floor(x), y=math.floor(y), elementNum=#self.gameMEM.objects.render.list.holograms+1, wrapped = wrapped}
+    if dynamic then
+        table.insert(self.gameMEM.objects.render.list.holograms,{lvl,priority})
+    else
+        table.insert(self.gameMEM.objects.render.list.backgroundHolograms,{lvl,priority})
+    end
+end
+function gameLib:changeSpriteData(lvl,img,x,y)
+    self:createSubTables(lvl)
+    x = x or self.gameMEM.screenWidth+1
+    y = y or self.gameMEM.screenHeight+1
+    local node = self:getSubTable(lvl)
+    if node.sprite then
+        if not (x < 2-#node.sprite) and not (x > self.gameMEM.screenWidth) then
+            node.x = math.floor(x)
+        end
+        if not (y < 2-table.maxn(node.sprite[1])) and not (y > self.gameMEM.screenHeight) then
+            node.y = math.floor(y)
+        end
+    end
+    if type(img) =="table" and node.sprite then
+        node.sprite = img
+    end
+end
+function gameLib:changeHologramData(lvl,text,textColor,textBackgroundColor,x,y,wrapped)
+    self:createSubTables(lvl)
+    x = x or self.gameMEM.screenWidth+1
+    y = y or self.gameMEM.screenHeight+1
+    local node = self:getSubTable(lvl)
+    if wrapped == nil then wrapped = node.wrapped end
+    
+    local correctionsCycles
+    if wrapped then correctionsCycles=3 else correctionsCycles = 1 end
+    
+    for i=1,correctionsCycles do
+        if node.text ~= nil then
+            if type(x) == "number" then
+                if not (x < 2-node.textMaxWidth) and not (x > self.gameMEM.screenWidth) then
+                    node.x = math.floor(x)
+                end
+            end
+            if type(y) == "number" then
+                if not (y < 1) and not (y > self.gameMEM.screenHeight) then
+                    node.y = math.floor(y)
+                end
+            end
+        end
+        if text then
+            if wrapped then
+                node.text, node.textMaxWidth = self:wrapHologramText(text,node.x)
+            else
+                node.text = {text}
+                node.textMaxWidth = #text
+            end
+        end
+    end
+    if type(textColor) == "table" then
+        node.textColor = textColor
+    end
+    if type(textBackgroundColor) == "table" then
+        node.textBackgroundColor = textBackgroundColor
+    end
+end
+function gameLib:groupObjects(groupLvl,lvlTable)
+    self:createSubTables(groupLvl)
+    local node, keys = self:getSubTable(groupLvl,false)
+    node[keys[#keys]] = {type="group", lvlTable=lvlTable}
+    table.insert(self.gameMEM.groups.list,groupLvl)
+end
+function gameLib:addObjectToGroup(groupLvl,lvlTable)
+    self:createSubTables(groupLvl)
+    local node = self:getSubTable(groupLvl)
+    if not node.lvlTable then error("Can't modify non existing group") end
+    for i=1,table.maxn(lvlTable) do
+        table.insert(node.lvlTable,lvlTable[i])
+    end
+end
+function gameLib:changeGroupData(groupLvl,x,y)
+    self:createSubTables(groupLvl)
+    local node = self:getSubTable(groupLvl)
+    if not node.lvlTable then error("Can't modify non existing group") end
+    local groupList = node.lvlTable
+    for i=1,table.maxn(groupList) do
+        self:createSubTables(groupList[i])
+        local obj = self:getSubTable(groupList[i])
+        if type(x) == "number" and obj.x and not (obj.x+x < 1) and not obj.x+x > self.gameMEM.screenWidth then
+            obj.x = math.floor(obj.x + x)
+        end
+        if type(x) == "number" and obj.y and not (obj.y+y < 1) and not obj.y+y > self.gameMEM.screenHeight then
+            obj.y = math.floor(obj.y + y)
+        end
+    end
+end
+function gameLib:removeObject(lvl)
+    self:createSubTables("objects.render.list.sprites")
+    self:createSubTables("objects.render.list.holograms")
+    local node = self:getSubTable(lvl)
+    if not node then return end
+    if node.type == "sprite" or node.type == "clone" then
+        if self:isSubTable("clones.list."..lvl) then
+            local cloneList = self:getSubTable("clones.list."..lvl)
+            for i= 1, #cloneList do
+                self:removeObject(cloneList[i])
+            end
+        end
+        if 0 < #self.gameMEM.objects.render.list.sprites then
+            for i=1,#self.gameMEM.objects.render.list.sprites do
+                if type(self.gameMEM.objects.render.list.sprites[i]) == "table" then
+                    if self.gameMEM.objects.render.list.sprites[i][1] == lvl then
+                        table.remove(self.gameMEM.objects.render.list.sprites,i)
+                    end
+                end
+            end
+        end
+    elseif node.type == "text" then
+        if node.dynamic then
+            if 0 < #self.gameMEM.objects.render.list.holograms then
+                for i=1,#self.gameMEM.objects.render.list.holograms do
+                    if type(self.gameMEM.objects.render.list.holograms[i]) == "table" then
+                        if self.gameMEM.objects.render.list.holograms[i][1] == lvl then
+                            table.remove(self.gameMEM.objects.render.list.holograms,i)
+                        end
+                    end
+                end
+            end
+        else
+            if 0 < #self.gameMEM.objects.render.list.backgroundHolograms then
+                for i=1,#self.gameMEM.objects.render.list.backgroundHolograms do
+                    if type(self.gameMEM.objects.render.list.backgroundHolograms[i]) == "table" then
+                        if self.gameMEM.objects.render.list.backgroundHolograms[i][1] == lvl then
+                            table.remove(self.gameMEM.objects.render.list.backgroundHolograms,i)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    self:updateRenderLists()
+    local node,keys = self:getSubTable(lvl,false)
+    node[keys[#keys]] = nil
+end
+function gameLib:removeObjectFromGroup(groupLvl,lvlTable)
+    local node = self:getSubTable(groupLvl)
+    if not node.lvlTable then error("Can't modify non existing group") end
+    for i=1,table.maxn(node.lvlTable) do
+        for j=1,#lvlTable do
+            if node.lvlTable[i] == lvlTable[j] then
+                table.remove(node.lvlTable,i)
+            end
+        end
+    end
+end
+function gameLib:isColliding(lvl, lvl2, isTransparent)
+    local obj1 = self:getSubTable(lvl)
+    local obj2 = self:getSubTable(lvl2)
+    if isTransparent == nil then
+        isTransparent = false
+    end
+    if not obj1 or not obj2 or not obj1.type or not obj2.type then return false end
+    if obj1.type == "group" and obj2.type == "group" then
+        local groupList1=obj1.lvlTable
+        local groupList2=obj2.lvlTable
+        if type(groupList1) ~= "table" or type(groupList2) ~= "table" then return false end
+        for i=1,table.maxn(groupList1) do
+            for j=1,table.maxn(groupList2) do
+                if self:isColliding(groupList1[i], groupList2[j], isTransparent) then
+                    return true
+                end
+            end
+        end
+        return false
+    elseif obj1.type == "group" and obj2.type ~= "group" then
+        local groupList=obj1.lvlTable
+        if type(groupList) ~= "table" then return false end
+        for i=1,table.maxn(groupList) do
+            if self:isColliding(groupList[i], lvl2, isTransparent) then
+                return true
+            end
+        end
+        return false
+    elseif obj1.type ~= "group" and obj2.type == "group" then
+        local groupList=obj2.lvlTable
+        if type(groupList) ~= "table" then return false end
+        for i=1,table.maxn(groupList) do
+            if self:isColliding(groupList[i], lvl, isTransparent) then
+                return true
+            end
+        end
+        return false
+    end
+    if not (obj1.x and obj1.y and obj2.x and obj2.y) then return false end
+    local x1, y1 = obj1.x + self.gameMEM.renderStartX, obj1.y + self.gameMEM.renderStartY
+    local x2, y2 = obj2.x + self.gameMEM.renderStartX, obj2.y + self.gameMEM.renderStartY
+    local w1, h1, w2, h2 = 0, 0, 0, 0
+    if obj1.type == "sprite" or obj1.type == "clone" then
+        if not obj1.sprite then return false end
+        if obj1.type == "clone" then
+            local node = self:getSubTable(obj1.sprite)
+            if not node.sprite then return false end
+            w1, h1 = #obj1.sprite, table.maxn(node.sprite[1])
+        else
+            w1, h1 = #obj1.sprite, table.maxn(obj1.sprite[1]) 
+        end
+    elseif obj1.type == "hologram" then
+        if not obj1.text then return false end
+        for i=1,#obj1.text do
+            if w1 < #tostring(obj1.text[i]) then
+                w1 = #tostring(obj1.text[i])
+            end
+        end
+        h1 = #obj1.text
+    end
+    if obj2.type == "sprite" or obj2.type == "clone" then
+        if not obj2.sprite then return false end
+        if obj2.type == "clone" then
+            local node = self:getSubTable(obj2.sprite)
+            if not node.sprite then return false end
+            w2, h2 = #obj2.sprite, table.maxn(node.sprite[1])
+        else
+            w2, h2 = #obj2.sprite, table.maxn(obj2.sprite[1]) 
+        end
+    elseif obj2.type == "hologram" then
+        if not obj2.text then return false end
+        for i=1,#obj2.text do
+            if w2 < #tostring(obj2.text[i]) then
+                w2 = #tostring(obj2.text[i])
+            end
+        end
+        h2 = #obj2.text
+    end
+    if x1 + w1 <= x2 or x1 >= x2 + w2 or y1 + h1 <= y2 or y1 >= y2 + h2 then
+        return false
+    end
+    if (obj1.type == "sprite" or obj1.type == "clone") and (obj2.type == "sprite" or obj2.type == "clone") then
+        local sprite1, sprite2 = obj1.sprite, obj2.sprite
+        if obj1.type=="clone" then
+            local node = self:getSubTable(obj1.sprite)
+            sprite1 = node.sprite
+        end
+        if obj2.type=="clone" then
+            local node = self:getSubTable(obj2.sprite)
+            sprite2 = node.sprite
+        end
+        if not (sprite1 and sprite2) then return false end
+        for i = 1, #sprite1 do
+            for j = 1, table.maxn(sprite1[i]) do
+                local px1, py1 = x1 + i - 1, y1 + j - 1
+                local relX, relY = px1 - x2 + 1, py1 - y2 + 1
+                if relX > 0 and relY > 0 and sprite2[relX] and sprite2[relX][relY] then
+                    if (not isTransparent) and (isColorValue(sprite1[i][j]) and isColorValue(sprite2[relX][relY])) then
+                        return true
+                    elseif isTransparent then
+                        return true
+                    end
+                end
+            end
+        end
+    end
+    if (obj1.type == "sprite" or obj1.type == "clone") and obj2.type == "hologram" then
+        local sprite = obj1.sprite
+        if obj1.type=="clone" then
+            local node = self:getSubTable(obj1.sprite)
+            sprite = node.sprite
+        end
+        if not sprite then return false end
+        for i = 1, #sprite do
+            for j = 1, table.maxn(sprite[i]) do
+                if relY >= 1 and relY <= #obj2.text then
+                    local textLine = obj2.text[relY]
+                    if relX >= 1 and relX <= #textLine then
+                        local textChar = textLine:sub(relX, relX)
+                        if sprite[i][j] and textChar ~= " " and not isTransparent then
+                            return true
+                        elseif isTransparent then
+                            return true
+                        end
+                    end
+                end
+            end
+        end
+    end
+    if obj1.type == "hologram" and (obj2.type == "sprite" or obj2.type == "clone") then
+        return self:isColliding(lvl2, lvl, isTransparent)
+    end
+    if obj1.type == "hologram" and obj2.type == "hologram" then
+        for i = 1, #obj1.text do
+            if relY >= 1 and relY <= #obj2.text then
+                local textLine1 = obj1.text[i]
+                local textLine2 = obj2.text[relY]
+                for j = 1, #textLine1 do
+                    if relX >= 1 and relX <= #textLine2 then
+                        local char1 = textLine1:sub(j, j)
+                        local char2 = textLine2:sub(relX, relX)
+                        if char1 ~= " " and char2 ~= " " and not isTransparent then
+                            return true
+                        elseif isTransparent then
+                            return true
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return false
+end
+function gameLib:isCollidingRaw(xIn, yIn, lvl, isTransparent)
+    local obj = self:getSubTable(lvl)
+    if isTransparent == nil then
+        isTransparent = false
+    end
+    if not obj or not obj.type then return false end
+    if obj.type == "group" then
+        local groupList=obj.lvlTable
+        if type(groupList) ~= "table" then return false end
+        for i=1,#groupList do
+            if self:isCollidingRaw(xIn, yIn, groupList[i], isTransparent) then
+                return true
+            end
+        end
+        return false
+    end
+    if not (obj.x and obj.y) then return false end
+    local x, y = obj.x + self.gameMEM.renderStartX, obj.y + self.gameMEM.renderStartY
+    local w, h = 0, 0
+    if obj.type == "sprite" or obj.type == "clone" then
+        if not obj.sprite then return false end
+        if obj.type == "clone" then
+            local node = self:getSubTable(obj.sprite)
+            if not node.sprite then return false end
+            w, h = #node.sprite, table.maxn(node.sprite[1])
+        else
+            w, h = #obj.sprite, table.maxn(obj.sprite[1])
+        end
+    elseif obj.type == "hologram" then
+        if not obj.text then return false end
+        for i=1,#obj.text do
+            if w < #tostring(obj.text[i]) then
+                w = #tostring(obj.text[i])
+            end
+        end
+        h = #obj.text
+    end
+    if xIn < x or xIn >= x + w or yIn < y or yIn >= y + h then
+        return false
+    end
+    if obj.type == "sprite" or obj.type == "clone" then
+        local sprite = obj.sprite
+        if obj.type == "clone" then
+            local node = self:getSubTable(obj.sprite)
+            sprite=node.sprite
+        end
+        if not sprite then return false end
+        local spriteX = xIn - x + 1
+        local spriteY = yIn - y + 1
+        local pixel = sprite[spriteX] and sprite[spriteX][spriteY]
+        if not isColorValue(pixel) and not isTransparent then
+            return false
+        end
+    end
+    if obj.type == "hologram" then
+        local textX = xIn - x + 1
+        local textY = yIn - y + 1
+        local line = obj.text[textY]
+        if line then
+            local char = line:sub(textX, textX)
+            if char == " " and not isTransparent then
+                return false
+            end
+        else
+            return false
+        end
+    end
+    return true
+end
+function gameLib:render()
+    local CurX, CurY
+    local currentBackgroundColor
+    local currentTextColor
+    if self.gameMEM.monitor then
+        CurX, CurY = self.gameMEM.monitor.getCursorPos()
+        currentBackgroundColor = self.gameMEM.monitor.getBackgroundColor()
+        currentTextColor = self.gameMEM.monitor.getTextColor()
+    else
+        CurX, CurY = term.getCursorPos()
+        currentBackgroundColor = term.getBackgroundColor()
+        currentTextColor = term.getTextColor()
+    end
+    for i = 1, #self.gameMEM.LVL.background do
+        for j = 1, #self.gameMEM.LVL.background[i] do
+            if isColorValue(self.gameMEM.LVL.background[i][j]) then
+                self:drawPixel(i + self.gameMEM.renderStartX, j + self.gameMEM.renderStartY, self.gameMEM.LVL.background[i][j])
+                if not self.gameMEM.LVL.screen[i] then
+                    self.gameMEM.LVL.screen[i] = {}
+                end
+                self.gameMEM.LVL.screen[i][j] = self.gameMEM.LVL.background[i][j]
+            end
+        end
+    end
+    if self.gameMEM.objects.render.listLen.backgroundHolograms ~= #self.gameMEM.objects.render.list.backgroundHolograms then
+        self.gameMEM.objects.render.renderList.backgroundHolograms = {}
+        for i = 1, #self.gameMEM.objects.render.list.backgroundHolograms do
+            if self.gameMEM.objects.render.list.backgroundHolograms[i] ~= nil then
+                self.gameMEM.objects.render.renderList.backgroundHolograms[self.gameMEM.objects.render.list.backgroundHolograms[i][2]] = self.gameMEM.objects.render.list.backgroundHolograms[i][1]
+                self.gameMEM.objects.render.listLen.backgroundHolograms = #self.gameMEM.objects.render.list.backgroundHolograms
+            end
+        end
+    end
+    if self.gameMEM.objects.render.listLen.sprites ~= #self.gameMEM.objects.render.list.sprites then
+        self.gameMEM.objects.render.renderList.sprites = {}
+        for i = 1, #self.gameMEM.objects.render.list.sprites do
+            if self.gameMEM.objects.render.list.sprites[i] ~= nil then
+                self.gameMEM.objects.render.renderList.sprites[self.gameMEM.objects.render.list.sprites[i][2]] = self.gameMEM.objects.render.list.sprites[i][1]
+                self.gameMEM.objects.render.listLen.sprites = #self.gameMEM.objects.render.list.sprites
+            end
+        end
+    end
+    if self.gameMEM.objects.render.listLen.holograms ~= #self.gameMEM.objects.render.list.holograms then
+        self.gameMEM.objects.render.renderList.holograms = {}
+        for i = 1, #self.gameMEM.objects.render.list.holograms do
+            if self.gameMEM.objects.render.list.holograms[i] ~= nil then
+                self.gameMEM.objects.render.renderList.holograms[self.gameMEM.objects.render.list.holograms[i][2]] = self.gameMEM.objects.render.list.holograms[i][1]
+                self.gameMEM.objects.render.listLen.holograms = #self.gameMEM.objects.render.list.holograms
+            end
+        end
+    end
+    for i = 1,table.maxn(self.gameMEM.objects.render.renderList.backgroundHolograms) do
+        if self.gameMEM.objects.render.renderList.backgroundHolograms[i] ~= nil then
+            local node = self:getSubTable(self.gameMEM.objects.render.renderList.backgroundHolograms[i])
+            if node ~= nil then
+                local renderText = node.text
+                local renderTextColor = node.textColor
+                local renderTextBackgroundColor = node.textBackgroundColor
+                local renderX = node.x or 1
+                local renderY = node.y or 1
+                local textColorTable = {}
+                if type(renderTextColor) == "table" then
+                    for color, textPos in pairs(renderTextColor) do
+                        textColorTable[textPos] = colors[color]
+                    end
+                end
+                local textBackgroundColorTable = {}
+                if type(renderTextBackgroundColor) == "table" then
+                    for color, textPos in pairs(renderTextBackgroundColor) do
+                        textBackgroundColorTable[textPos] = colors[color]
+                    end
+                end
+                local textBackgroundColorSet = false
+                local textColorPos = 0
+                local textOut = ""
+                for i =1, #renderText do
+                    if self.gameMEM.monitor then
+                        self.gameMEM.monitor.setCursorPos(renderX + self.gameMEM.renderStartX, renderY + self.gameMEM.renderStartY + (i - 1))
+                        self.gameMEM.monitor.setTextColor(colors.white)
+                    else
+                        term.setCursorPos(renderX + self.gameMEM.renderStartX, renderY + self.gameMEM.renderStartY + (i - 1))
+                        term.setTextColor(colors.white)
+                    end
+                    textOut = tostring(renderText[i])
+                    for j = 1, #renderText[i] do
+                        if isColorValue(textColorTable[j]) then
+                            if self.gameMEM.monitor then
+                                self.gameMEM.monitor.setTextColor(textColorTable[j+textColorPos])
+                            else
+                                term.setTextColor(textColorTable[j+textColorPos])
+                            end
+                        end
+                        if isColorValue(textBackgroundColorTable[j+textColorPos]) then
+                            if self.gameMEM.monitor then
+                                self.gameMEM.monitor.setBackgroundColor(textBackgroundColorTable[j+textColorPos])
+                            else
+                                term.setBackgroundColor(textBackgroundColorTable[j+textColorPos])
+                            end
+                            textBackgroundColorSet = true
+                        elseif self.gameMEM.LVL.screen[renderX + (j - 1)] then
+                            if isColorValue(self.gameMEM.LVL.screen[renderX + (j - 1)][renderY + (i - 1)]) and not textBackgroundColorSet then
+                                if self.gameMEM.monitor then
+                                    self.gameMEM.monitor.setBackgroundColor(self.gameMEM.LVL.screen[renderX + (j - 1)][renderY + (i - 1)])
+                                else
+                                    term.setBackgroundColor(self.gameMEM.LVL.screen[renderX + (j - 1)][renderY + (i - 1)])
+                                end
+                            end
+                        end
+                        
+                        if self.gameMEM.monitor then
+                            self.gameMEM.monitor.write(string.sub(textOut, j, j))
+                        else
+                            term.write(string.sub(textOut, j, j))
+                        end
+                    end
+                    textColorPos = textColorPos + #textOut
+                end
+            end
+        end
+    end
+    for i = 1, table.maxn(self.gameMEM.objects.render.renderList.sprites) do
+        if self.gameMEM.objects.render.renderList.sprites[i] ~= nil then
+            if self:isSubTable(self.gameMEM.objects.render.renderList.sprites[i]) then
+                if self.gameMEM.monitor then
+                    self.gameMEM.monitor.setCursorPos(1,1)
+                else
+                    term.setCursorPos(1,1)
+                end
+                local node = self:getSubTable(self.gameMEM.objects.render.renderList.sprites[i])
+                local renderSprite = node.sprite or {}
+                if node.type == "clone" then
+                    local obj = self:getSubTable(node.sprite) 
+                    renderSprite = obj.sprite or {}
+                end
+                local renderX = node.x or 1
+                local renderY = node.y or 1
+                renderX = renderX - 1
+                renderY = renderY -1
+                for i = 1, #renderSprite do
+                    for j = 1, table.maxn(renderSprite[i]) do
+                        if isColorValue(renderSprite[i][j]) then
+                            self:drawPixel(i + renderX + self.gameMEM.renderStartX, j + renderY + self.gameMEM.renderStartY, renderSprite[i][j])
+                            if self.gameMEM.LVL.screen[i + renderX] then
+                                if self.gameMEM.LVL.screen[i + renderX][j + renderY] and isColorValue(renderSprite[i][j]) then
+                                    self.gameMEM.LVL.screen[i + renderX][j + renderY] = renderSprite[i][j]
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    for i = 1,table.maxn(self.gameMEM.objects.render.renderList.holograms) do
+        if self.gameMEM.objects.render.renderList.holograms[i] ~= nil then
+            local node = self:getSubTable(self.gameMEM.objects.render.renderList.holograms[i])
+            if node ~= nil then
+                local renderText = node.text
+                local renderTextColor = node.textColor
+                local renderTextBackgroundColor = node.textBackgroundColor
+                local renderX = node.x or 1
+                local renderY = node.y or 1
+                local textColorTable = {}
+                if type(renderTextColor) == "table" then
+                    for color, textPos in pairs(renderTextColor) do
+                        textColorTable[textPos] = colors[color]
+                    end
+                end
+                local textBackgroundColorTable = {}
+                if type(renderTextBackgroundColor) == "table" then
+                    for color, textPos in pairs(renderTextBackgroundColor) do
+                        textBackgroundColorTable[textPos] = colors[color]
+                    end
+                end
+                if self.gameMEM.monitor then
+                    self.gameMEM.monitor.setTextColor(colors.white)
+                else
+                    term.setTextColor(colors.white)
+                end
+                local textBackgroundColorSet = false
+                local textColorPos = 0
+                local textOut = ""
+                for i =1, #renderText do
+                    if self.gameMEM.monitor then
+                        self.gameMEM.monitor.setCursorPos(renderX + self.gameMEM.renderStartX, renderY + self.gameMEM.renderStartY + (i - 1))
+                    else
+                        term.setCursorPos(renderX + self.gameMEM.renderStartX, renderY + self.gameMEM.renderStartY + (i - 1))
+                    end
+                    textOut = tostring(renderText[i])
+                    for j = 1, #renderText[i] do
+                        if isColorValue(textColorTable[j+textColorPos]) then
+                            if self.gameMEM.monitor then
+                                self.gameMEM.monitor.setTextColor(textColorTable[j+textColorPos])
+                            else
+                                term.setTextColor(textColorTable[j+textColorPos])
+                            end
+                        end
+                        if isColorValue(textBackgroundColorTable[j+textColorPos]) then
+                            if self.gameMEM.monitor then
+                                self.gameMEM.monitor.setBackgroundColor(textBackgroundColorTable[j+textColorPos])
+                            else
+                                term.setBackgroundColor(textBackgroundColorTable[j+textColorPos])
+                            end
+                            textBackgroundColorSet = true
+                        elseif self.gameMEM.LVL.screen[renderX + (j - 1)] then
+                            if isColorValue(self.gameMEM.LVL.screen[renderX + (j - 1)][renderY + (i - 1)]) and not textBackgroundColorSet then
+                                if self.gameMEM.monitor then
+                                    self.gameMEM.monitor.setBackgroundColor(self.gameMEM.LVL.screen[renderX + (j - 1)][renderY + (i - 1)])
+                                else
+                                    term.setBackgroundColor(self.gameMEM.LVL.screen[renderX + (j - 1)][renderY + (i - 1)])
+                                end
+                            end
+                        end
+                        if self.gameMEM.monitor then
+                            self.gameMEM.monitor.write(string.sub(textOut, j, j))
+                        else
+                            term.write(string.sub(textOut, j, j))
+                        end
+                    end
+                    textColorPos = textColorPos + #textOut
+                end
+            end
+        end
+    end
+    if self.gameMEM.monitor then
+        self.gameMEM.monitor.setTextColor(currentTextColor)
+        self.gameMEM.monitor.setBackgroundColor(currentBackgroundColor)
+        self.gameMEM.monitor.setCursorPos(CurX, CurY)
+    else
+        term.setTextColor(currentTextColor)
+        term.setBackgroundColor(currentBackgroundColor)
+        term.setCursorPos(CurX, CurY)
+    end
+end
