@@ -288,3 +288,116 @@ gameLib:cloneObject(lvl: string, priority: number|nil, x: number|nil, y: number|
 >groupClones: if true will create/add objects to a group named: lvl+".spriteClone.group"  (e.g: "test.string.spriteClone.group") consisting of the parent object and all it's spriteClones (useful for checking for collisions of parent and spriteClones). defaults to false if not provided
 
 <br><br><br>
+
+```lua
+gameLib:groupObjects(groupLvl: string, lvlTable: table)
+```
+##### description:
+###### lets you group objects together. They will still render separately and their behavior won't change at all. Is useful if you want to check for multiple collisions at once or change common data for all objects. 
+<b><font color="red">!!! WARNING: groups can contain groups may have impact on other functions like gameLib:isColliding or gameLib:changeGroupData !!!</font></b>
+
+##### arguments:
+>groupLvl: is a string that gives it the hierarchy e.g: "test.string"
+
+>lvlTable: is a table of object (= sprites, holograms, clones) hierarchies that are a part of this group e.g: "test.string","test.number",ect...
+
+<br><br><br>
+
+```lua
+gameLib:addObjectToGroup(groupLvl: string, lvlTable: table)
+```
+##### description:
+###### lets you add a table of objects to an already existing group
+##### arguments:
+>groupLvl: is a string that gives it the hierarchy e.g: "test.string"
+
+>lvlTable: is a table of object (= sprites, holograms, clones) hierarchies that get added to this group e.g: "test.string","test.number",ect...
+
+<br><br><br>
+
+```lua
+gameLib:changeGroupData(groupLvl: string, x: number|nil, y: number|nil)
+```
+##### description:
+###### lets you change common data of objects (=sprites, hologram, clones)
+##### arguments:
+>groupLvl: is a string that gives it the hierarchy e.g: "test.string"
+
+>x: is the number that is added to/subtracted(if negative) from the objects X coordinate
+
+>y: is the number that is added to/subtracted(if negative) from the objects Y coordinate
+
+<br><br><br>
+
+```lua
+gameLib:removeObject(lvl: string)
+```
+##### description:
+###### lets you remove objects from the render 
+<b><font color="red">!!!Will delete all object data!!!</font></b>
+
+##### arguments:
+>lvl: is a string that gives it the hierarchy to remove e.g: "test.string"
+
+<br><br><br>
+
+```lua
+gameLib:removeObjectFromGroup(groupLvl: string, lvlTable: table)
+```
+##### description:
+###### lets you remove Objects from the group lvl table
+##### arguments:
+>groupLvl: is a string that gives it the hierarchy e.g: "test.string"
+
+>lvlTable: is a table of object (= sprites, holograms) hierarchies that you want to remove e.g: "test.string","test.number",ect...
+
+<br><br><br>
+
+```lua
+gameLib:isColliding(lvl: string, lvl2: string, isTransparent: boolean|nil)
+```
+##### description:
+###### lets you check if an object (including groups) is on top of an other object (including groups) returns true if it is, otherwise it returns false uses bounding boxes. 
+<b><font color="red">Waring may fail if supplied, a group containing more groups (due to lua function stacking prevention)!</font></b>
+##### arguments:
+>lvl: is a string that gives it the hierarchy of the first object (including groups) to check e.g: "test.string"
+
+>lvl2: is a string that gives it the hierarchy of the second object (including groups) to check e.g: "test.number"
+
+>isTransparent: if true an empty space colliding counts as a collision. Defaults to false if not supplied
+
+##### Returns:
+>output: boolean
+
+<br><br><br>
+
+```lua
+gameLib:isCollidingRaw(xIn: number, yIn:number, lvl: string, isTransparent: boolean|nil)
+```
+##### description:
+###### lets you check if a object (including groups) is rendered at certain X,Y Coordinates.
+<b><font color="red">Waring may fail if supplied, a group containing more groups (due to lua function stacking prevention)!</font></b>
+
+##### arguments:
+>xIn: is the X coordinate for the collision check
+
+>yIn: is the Y coordinate for the collision check
+
+>lvl: is a string that gives it the hierarchy of the object to check e.g: "test.string"
+
+>isTransparent: if true an empty space colliding counts as a collision. Defaults to false if not supplied
+
+##### Returns:
+>output: boolean
+
+<br>
+
+#### rendering based functions
+
+<br>
+
+```lua
+gameLib:render()
+```
+##### description:
+###### lets you render the game
