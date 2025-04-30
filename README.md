@@ -18,7 +18,7 @@ or<br>
 require("TDGameLib")
 ```
 
-(though i did not get that to work!)<br>
+(though i did not get require to work! so i use os.loadAPI [p.s.: fight me over it!])<br>
 
 now to create an actual "game" you have to make an object that holds all the data of the game to do that use<br>
 ```lua
