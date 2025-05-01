@@ -1,9 +1,9 @@
 you have to donwload all files except the README.md file for the game to work<br>
 please Download:<br>
 <b>-tunnelRunner.lua (script)<br>
--zAssets (folder)</b>
+-zAssets (folder)
 
 <br>
 
-<b>then put it inside a folder of a disk and execute it</b>
+then put it inside a folder of a disk and execute it</b>
 
