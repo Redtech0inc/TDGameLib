@@ -210,12 +210,14 @@ lets you set a background via gameLib:loadImage advised to be the length & width
 
 <br>
 
+##### addSprite
+
 ```lua
 gameLib:addSprite(lvl: string, img: table, priority: number|nil, x: number|nil, y: number|nil)
 ```
-##### description:
-###### adds a Sprite to the render
-##### arguments:
+<b>Description:</b><br>
+adds a Sprite to the render<br>
+<b>Arguments:</b><br>
 >lvl: is a string that gives it the hierarchy e.g: "test.string"
 
 >img: is the sprite of the game as matrix can be loaded using gameLib:loadImage
@@ -228,12 +230,14 @@ gameLib:addSprite(lvl: string, img: table, priority: number|nil, x: number|nil, 
 
 <br><br><br>
 
+##### addHologram
+
 ```lua
 gameLib:addHologram(lvl: string, text: string, textColor: table|nil, textBackgroundColor: table|nil, priority: number|nil, x: number|nil, y: number|nil, dynamic: boolean|nil, wrapped: boolean|nil)
 ```
-##### description:
-###### adds a Hologram/Text to the render
-##### arguments:
+<b>Description:</b><br>
+adds a Hologram/Text to the render<br>
+<b>Arguments:</b><br>
 >lvl: is a string that gives it the hierarchy e.g: "test.string"
 
 >text: is the text that is going to be displayed
@@ -254,12 +258,14 @@ gameLib:addHologram(lvl: string, text: string, textColor: table|nil, textBackgro
 
 <br><br><br>
 
+##### changeSpriteData
+
 ```lua
 gameLib:changeSpriteData(lvl: string, img: table|nil, x: number|nil, y: number|nil)
 ```
-##### description:
-###### lets you manipulate all data of an existing Sprite
-##### arguments:
+<b>Description:</b><br>
+lets you manipulate all data of an existing Sprite<br>
+<b>Arguments:</b><br>
 >lvl: is a string that gives it the hierarchy e.g: "test.string"
 
 >img: is the sprite that will be displayed can be loaded from .nfp file through gameLib:loadImage won't change if not supplied
@@ -270,12 +276,14 @@ gameLib:changeSpriteData(lvl: string, img: table|nil, x: number|nil, y: number|n
 
 <br><br><br>
 
+##### changeHologramData
+
 ```lua
 gameLib:changeHologramData(lvl: string, text: string|nil, textColor: table|nil, textBackgroundColor: table|nil, x: number|nil, y: number|nil, wrapped: boolean|nil)
 ```
-##### description:
-###### lets you manipulate all data fo an existing Hologram
-##### arguments:
+<b>Description:</b><br>
+lets you manipulate all data fo an existing Hologram<br>
+<b>Arguments:</b><br>
 >lvl: is a string that gives it the hierarchy e.g: "test.string"
 
 >text: is the text that is being displayed. Won't change if not supplied
@@ -292,12 +300,14 @@ gameLib:changeHologramData(lvl: string, text: string|nil, textColor: table|nil, 
 
 <br><br><br>
 
+##### cloneObject
+
 ```lua
 gameLib:cloneObject(lvl: string, priority: number|nil, x: number|nil, y: number|nil, groupClones: boolean|nil)
 ```
-##### description:
-###### allows you to make a clone of a sprite this wll create a object that share the same texture as it's parent object
-##### arguments:
+<b>Description:</b><br>
+allows you to make a clone of a sprite this wll create a object that share the same texture as it's parent object<br>
+<b>Arguments:</b><br>
 >lvl: is the string that gives it the hierarchy to clone e.g:"test.string" (only sprites)
 
 >priority: level of priority when rendering will default to the highest when nil higher priority gets rendered over lower. can not be the priority of thr original sprite
@@ -310,38 +320,44 @@ gameLib:cloneObject(lvl: string, priority: number|nil, x: number|nil, y: number|
 
 <br><br><br>
 
+##### groupObjects
+
 ```lua
 gameLib:groupObjects(groupLvl: string, lvlTable: table)
 ```
-##### description:
-###### lets you group objects together. They will still render separately and their behavior won't change at all. Is useful if you want to check for multiple collisions at once or change common data for all objects. 
-<b><font color="red">!!! WARNING: groups can contain groups may have impact on other functions like gameLib:isColliding or gameLib:changeGroupData !!!</font></b>
+<b>Description:</b><br>
+lets you group objects together. They will still render separately and their behavior won't change at all. Is useful if you want to check for multiple collisions at once or change common data for all objects.<br>
+<b><font color="red">!!! WARNING: groups can contain groups may have impact on other functions like gameLib:isColliding or gameLib:changeGroupData !!!</font></b><br>
 
-##### arguments:
+<b>Arguments:</b><br>
 >groupLvl: is a string that gives it the hierarchy e.g: "test.string"
 
 >lvlTable: is a table of object (= sprites, holograms, clones) hierarchies that are a part of this group e.g: "test.string","test.number",ect...
 
 <br><br><br>
 
+##### addObjectToGroup
+
 ```lua
 gameLib:addObjectToGroup(groupLvl: string, lvlTable: table)
 ```
-##### description:
-###### lets you add a table of objects to an already existing group
-##### arguments:
+<b>Description:</b><br>
+lets you add a table of objects to an already existing group<br>
+<b>Arguments:</b><br>
 >groupLvl: is a string that gives it the hierarchy e.g: "test.string"
 
 >lvlTable: is a table of object (= sprites, holograms, clones) hierarchies that get added to this group e.g: "test.string","test.number",ect...
 
 <br><br><br>
 
+##### changeGroupData
+
 ```lua
 gameLib:changeGroupData(groupLvl: string, x: number|nil, y: number|nil)
 ```
-##### description:
-###### lets you change common data of objects (=sprites, hologram, clones)
-##### arguments:
+<b>Description:</b><br>
+lets you change common data of objects (=sprites, hologram, clones)<br>
+<b>Arguments:</b><br>
 >groupLvl: is a string that gives it the hierarchy e.g: "test.string"
 
 >x: is the number that is added to/subtracted(if negative) from the objects X coordinate
@@ -350,56 +366,64 @@ gameLib:changeGroupData(groupLvl: string, x: number|nil, y: number|nil)
 
 <br><br><br>
 
+##### removeObject
+
 ```lua
 gameLib:removeObject(lvl: string)
 ```
-##### description:
-###### lets you remove objects from the render 
-<b><font color="red">!!!Will delete all object data!!!</font></b>
+<b>Description:</b><br>
+lets you remove objects from the render<br>
+<b><font color="red">!!!Will delete all object data!!!</font></b><br>
 
-##### arguments:
+<b>Arguments:</b><br>
 >lvl: is a string that gives it the hierarchy to remove e.g: "test.string"
 
 <br><br><br>
 
+##### removeObjectFromGroup
+
 ```lua
 gameLib:removeObjectFromGroup(groupLvl: string, lvlTable: table)
 ```
-##### description:
-###### lets you remove Objects from the group lvl table
-##### arguments:
+<b>Description:</b><br>
+lets you remove Objects from the group lvl table<br>
+<b>Arguments:</b><br>
 >groupLvl: is a string that gives it the hierarchy e.g: "test.string"
 
 >lvlTable: is a table of object (= sprites, holograms) hierarchies that you want to remove e.g: "test.string","test.number",ect...
 
 <br><br><br>
 
+##### isColliding
+
 ```lua
 gameLib:isColliding(lvl: string, lvl2: string, isTransparent: boolean|nil)
 ```
-##### description:
-###### lets you check if an object (including groups) is on top of an other object (including groups) returns true if it is, otherwise it returns false uses bounding boxes. 
-<b><font color="red">Waring may fail if supplied, a group containing more groups (due to lua function stacking prevention)!</font></b>
-##### arguments:
+<b>Description:</b><br>
+lets you check if an object (including groups) is on top of an other object (including groups) returns true if it is, otherwise it returns false uses bounding boxes.<br>
+<b><font color="red">Waring may fail if supplied, a group containing more groups (due to lua function stacking prevention)!</font></b><br>
+<b>Arguments:</b><br>
 >lvl: is a string that gives it the hierarchy of the first object (including groups) to check e.g: "test.string"
 
 >lvl2: is a string that gives it the hierarchy of the second object (including groups) to check e.g: "test.number"
 
 >isTransparent: if true an empty space colliding counts as a collision. Defaults to false if not supplied
 
-##### Returns:
+<b>Returns:</b><br>
 >output: boolean
 
 <br><br><br>
 
+##### isCollidingRaw
+
 ```lua
 gameLib:isCollidingRaw(xIn: number, yIn:number, lvl: string, isTransparent: boolean|nil)
 ```
-##### description:
-###### lets you check if a object (including groups) is rendered at certain X,Y Coordinates.
-<b><font color="red">Waring may fail if supplied, a group containing more groups (due to lua function stacking prevention)!</font></b>
+<b>Description:</b><br>
+lets you check if a object (including groups) is rendered at certain X,Y Coordinates.<br>
+<b><font color="red">Waring may fail if supplied, a group containing more groups (due to lua function stacking prevention)!</font></b><br>
 
-##### arguments:
+<b>Arguments:</b><br>
 >xIn: is the X coordinate for the collision check
 
 >yIn: is the Y coordinate for the collision check
@@ -408,7 +432,7 @@ gameLib:isCollidingRaw(xIn: number, yIn:number, lvl: string, isTransparent: bool
 
 >isTransparent: if true an empty space colliding counts as a collision. Defaults to false if not supplied
 
-##### Returns:
+<b>Returns:</b><br>
 >output: boolean
 
 <br>
@@ -417,11 +441,13 @@ gameLib:isCollidingRaw(xIn: number, yIn:number, lvl: string, isTransparent: bool
 
 <br>
 
+##### render
+
 ```lua
 gameLib:render()
 ```
-##### description:
-###### lets you render the game
+<b>Description:</b><br>
+lets you render the game<br>
 
 <br><br><br>
 
