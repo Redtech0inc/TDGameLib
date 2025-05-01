@@ -32,13 +32,16 @@ which will then create an object under your **namespace**
 ### functions
 
 #### Game FrameWork based functions
+
+##### create
+
 ```lua
 gameLib:create(gameName: any, useMonitor: boolean|nil, monitorFilter: table|nil, pixelSize: number|nil, screenStartX: number|nil, screenStartY: number|nil, screenEndX: number|nil, screenEndY: number|nil)
 ```
-##### description:
-###### creates a framework for a 2D game
+<b>description:</b><br>
+creates a framework for a 2D game
 
-##### arguments:
+<b>arguments:</b><br>
 >gameName: name of the game given to the game.gameName
 
 >useMonitor: if true will make the game render on a connected monitor. defaults to false if not provided
@@ -55,37 +58,43 @@ gameLib:create(gameName: any, useMonitor: boolean|nil, monitorFilter: table|nil,
 
 > screenEndY: is the Y coordinate at which the render ends, defaults to output object height if not provided
 
-##### returns:
+<b>returns:</b><br>
 >gameENV: an object which is the game Framework
 
 <br><br><br>
 
+##### quit
+
 ```lua
 gameLib:quit(restart: boolean|nil, exitMessage: any, exitMessageColor: any)
 ```
-##### description:
-###### ends the game and removes the framework
-##### arguments:
+<b>description:</b><br>
+ends the game and removes the framework
+<b>arguments:</b><br>
 > restart: if true restarts the computer otherwise just resets the terminal/monitor. If not provided defaults to false
 
 <br><br><br>
 
+##### useDataFile
+
 ```lua
 gameLib:useDataFile(fileDir: string)
 ```
-##### description:
-###### lets you load in game assets from a .data(.html and .xml mix: tag based) notation file. Will return an error if the .data file has invalid data or something went wrong whilst adding or grouping objects
-##### arguments:
+<b>description:</b><br>
+lets you load in game assets from a .data(.html and .xml mix: tag based) notation file. Will return an error if the .data file has invalid data or something went wrong whilst adding or grouping objects
+<b>arguments:</b><br>
 > fileDir: the directory of the file that you want to load
 
 <br><br><br>
 
+##### makeDataFile
+
 ```lua
 gameLib:makeDataFile(fileDir: string, compact: boolean|nil)
 ```
-##### description:
-###### lets you take all objects & groups and turn them into a .data(.html and .xml mix: tag based) file
-##### arguments:
+<b>description:</b><br>
+lets you take all objects & groups and turn them into a .data(.html and .xml mix: tag based) file
+<b>arguments:</b><br>
 >fileDir: is the directory where the file will be saved
 
 >compact: if true will compact the content into one line useful for space saving otherwise uses indentation for readability. defaults to false if not provided
