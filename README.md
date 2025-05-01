@@ -38,10 +38,10 @@ which will then create an object under your **namespace**
 ```lua
 gameLib:create(gameName: any, useMonitor: boolean|nil, monitorFilter: table|nil, pixelSize: number|nil, screenStartX: number|nil, screenStartY: number|nil, screenEndX: number|nil, screenEndY: number|nil)
 ```
-<b>description:</b><br>
-creates a framework for a 2D game
+<b>Description:</b><br>
+creates a framework for a 2D game<br>
 
-<b>arguments:</b><br>
+<b>Arguments:</b><br>
 >gameName: name of the game given to the game.gameName
 
 >useMonitor: if true will make the game render on a connected monitor. defaults to false if not provided
@@ -58,7 +58,7 @@ creates a framework for a 2D game
 
 > screenEndY: is the Y coordinate at which the render ends, defaults to output object height if not provided
 
-<b>returns:</b><br>
+<b>Returns:</b><br>
 >gameENV: an object which is the game Framework
 
 <br><br><br>
@@ -68,9 +68,9 @@ creates a framework for a 2D game
 ```lua
 gameLib:quit(restart: boolean|nil, exitMessage: any, exitMessageColor: any)
 ```
-<b>description:</b><br>
-ends the game and removes the framework
-<b>arguments:</b><br>
+<b>Description:</b><br>
+ends the game and removes the framework<br>
+<b>Arguments:</b><br>
 > restart: if true restarts the computer otherwise just resets the terminal/monitor. If not provided defaults to false
 
 <br><br><br>
@@ -80,9 +80,9 @@ ends the game and removes the framework
 ```lua
 gameLib:useDataFile(fileDir: string)
 ```
-<b>description:</b><br>
-lets you load in game assets from a .data(.html and .xml mix: tag based) notation file. Will return an error if the .data file has invalid data or something went wrong whilst adding or grouping objects
-<b>arguments:</b><br>
+<b>Description:</b><br>
+lets you load in game assets from a .data(.html and .xml mix: tag based) notation file. Will return an error if the .data file has invalid data or something went wrong whilst adding or grouping objects<br>
+<b>Arguments:</b><br>
 > fileDir: the directory of the file that you want to load
 
 <br><br><br>
@@ -92,9 +92,9 @@ lets you load in game assets from a .data(.html and .xml mix: tag based) notatio
 ```lua
 gameLib:makeDataFile(fileDir: string, compact: boolean|nil)
 ```
-<b>description:</b><br>
-lets you take all objects & groups and turn them into a .data(.html and .xml mix: tag based) file
-<b>arguments:</b><br>
+<b>Description:</b><br>
+lets you take all objects & groups and turn them into a .data(.html and .xml mix: tag based) file<br>
+<b>Arguments:</b><br>
 >fileDir: is the directory where the file will be saved
 
 >compact: if true will compact the content into one line useful for space saving otherwise uses indentation for readability. defaults to false if not provided
@@ -104,27 +104,31 @@ lets you take all objects & groups and turn them into a .data(.html and .xml mix
 #### gameMEM based Functions
 <br>
 
+##### setGameMEMValue
+
 ```lua
 gameLib:setGameMEMValue(lvl: string, value: any)
 ```
-##### description:
-###### lets you set a value in the Game Matrix/Memory to save values that are accessible to the gameLib
-##### arguments:
+<b>Description:</b><br>
+lets you set a value in the Game Matrix/Memory to save values that are accessible to the gameLib<br>
+<b>Arguments:</b><br>
 >lvl: is a string that gives it the hierarchy e.g: "test.string"
 
 >value: is the value that in our case 'test.string' is set to e.g: value="hello world"
 
 <br><br><br>
 
+##### getGameMEMValue
+
 ```lua
 gameLib:getGameMEMValue(place: string|nil)
 ```
-##### description:
-###### lets you look inside the self.gameMEM hierarchy
-##### arguments:
+<b>Description:</b><br>
+lets you look inside the self.gameMEM hierarchy<br>
+<b>Arguments:</b><br>
 > place: place to look in the self.gameMEM hierarchy
 
-##### Returns:
+<b>Returns:</b>
 >table: will return all values from the given place on in the hierarchy or self.gameMEM if place is nil
 
 <br>
@@ -133,25 +137,29 @@ gameLib:getGameMEMValue(place: string|nil)
 
 <br>
 
+##### loadImage
+
 ```lua
 gameLib:loadImage(imgDir: string)
 ```
-##### description:
-###### lets you load in a .nfp correctly!
-##### arguments:
+<b>Description:</b><br>
+lets you load in a .nfp correctly!<br>
+<b>Arguments:</b><br>
 >imgDir: is the path that get's loaded as image table
 
-##### Returns:
+<b>Returns:</b><br>
 >image: the image as Matrix made of color values (read about color values [here](https://tweaked.cc/module/colors.html))
 
 <br><br><br>
 
+##### getShapeSprite
+
 ```lua
 gameLib:getShapeSprite(shape: string|nil, width: number|nil, height: number|nil, color: number, rightAngled: boolean|nil, side: string|nil)
 ```
-##### description:
-###### generates a sprite of geometric shapes
-##### arguments:
+<b>Description:</b><br>
+generates a sprite of geometric shapes<br>
+<b>Arguments:</b><br>
 >shape: is the geometric shape which you want ot generate a sprite for e.g: "circle","triangle","square"
 
 >width: is the width/radius(if it's a circle) of the shape must be provided for shapes: "square" & "circle"
@@ -164,32 +172,36 @@ gameLib:getShapeSprite(shape: string|nil, width: number|nil, height: number|nil,
 
 >side: will determine if the upper or lower half of the right angled triangle is given. Will default to "lower" if not provided
 
-##### Returns:
+<b>Returns:</b><br>
 >img: is the image matrix of the shape
 
 <br><br><br>
 
+##### turnSprite
+
 ```lua
 gameLib:turnSprite(sprite: table, times: number)
 ```
-##### description:
-###### lets you turn the given sprite in increments of 90 Degrees by the number of times you inputted
-##### arguments:
+<b>Description:</b><br>
+lets you turn the given sprite in increments of 90 Degrees by the number of times you inputted
+<b>Arguments:</b><br>
 >sprite: is the sprite that gets turned
 
 >times: is the amount of times it will iterate of rotations of 90 degrees
 
-##### Returns:
+<b>Returns:</b><br>
 >sprite: is the rotated matrix of the sprite
 
 <br><br><br>
 
+##### setBackgroundImage
+
 ```lua
 gameLib:setBackgroundImage(img: table)
 ```
-##### description:
-###### lets you set a background via gameLib:loadImage advised to be the length & width of the terminal
-##### arguments:
+<b>Description:</b><br>
+lets you set a background via gameLib:loadImage advised to be the length & width of the output object<br>
+<b>Arguments:</b><br>
 >img: matrix give by gameLib:loadImage
 
 <br>
