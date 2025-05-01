@@ -327,7 +327,7 @@ gameLib:groupObjects(groupLvl: string, lvlTable: table)
 ```
 <b>Description:</b><br>
 lets you group objects together. They will still render separately and their behavior won't change at all. Is useful if you want to check for multiple collisions at once or change common data for all objects.<br>
-<b><font color="red">!!! WARNING: groups can contain groups may have impact on other functions like gameLib:isColliding or gameLib:changeGroupData !!!</font></b><br>
+<b><font color="red">!!! WARNING: groups can contain groups may have impact on other functions like gameLib:isColliding, gameLib:isCollidingRaw or gameLib:changeGroupData !!!</font></b><br>
 
 <b>Arguments:</b><br>
 >groupLvl: is a string that gives it the hierarchy e.g: "test.string"
