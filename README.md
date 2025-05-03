@@ -485,6 +485,7 @@ local height = gameLib:getGameMEMValue("screenHeight")
 <b>Returned Value:</b><br>
 this is the the height of the output object in pixels<br>
 
+##### group list
 ```lua
 local groups = gameLib:getGameMEMValue("groups.list")
 ```
