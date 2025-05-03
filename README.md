@@ -541,7 +541,7 @@ is a string that says the type of an image<br>
 
 <p>
 explanation:<br>
-types is the game frame works way of making sure operations like gameLib:isColliding work even when some objects have image matrixes (sprites) and others have text (holograms)
+types is the game frame work's way of making sure operations like gameLib:isColliding work even when some objects have image matrixes (sprites) and others have text (holograms)
 </p><br>
 existing types are:<br>
 <li>sprite (is a sprite object)
