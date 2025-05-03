@@ -573,14 +573,14 @@ local objectText = gameLib:getGameMEMValue("objectName.text")
 <b>Returned Value:</b><br>
 is the text that is displayed by a hologram<br>
 
-##### textColor
+##### textColor (hologram only var)
 ```lua
 local objectImg = gameLib:getGameMEMValue("objectName.textColor")
 ```
 <b>Returned Value:</b><br>
 is a table that contains the color formatting e.g.:{red=1,blue=5} (the format consists of color name within the color api and after the '=' the position in the string at which to start coloring p.s.: only changes color when overwritten)
 
-##### textBackgroundColor
+##### textBackgroundColor (hologram only var)
 ```lua
 local objectImg = gameLib:getGameMEMValue("objectName.textBackgroundColor")
 ```
