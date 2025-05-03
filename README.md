@@ -213,7 +213,7 @@ lets you set a background via gameLib:loadImage advised to be the length & width
 ##### addSprite
 
 ```lua
-gameLib:addSprite(lvl: string, img: table, priority: number|nil, x: number|nil, y: number|nil)
+gameLib:addSprite(lvl: string, img: table, priority: number|nil, x: number|nil, y: number|nil, screenBound: boolean|nil)
 ```
 <b>Description:</b><br>
 adds a Sprite to the render<br>
@@ -228,12 +228,14 @@ adds a Sprite to the render<br>
 
 >y: y position of the sprite (will start rendering at that y pos). defaults to 1 if not provided
 
+>screenBound: if false the object can go as far off screen as it wants. defaults to true if not provided
+
 <br><br><br>
 
 ##### addHologram
 
 ```lua
-gameLib:addHologram(lvl: string, text: string, textColor: table|nil, textBackgroundColor: table|nil, priority: number|nil, x: number|nil, y: number|nil, dynamic: boolean|nil, wrapped: boolean|nil)
+gameLib:addHologram(lvl: string, text: string, textColor: table|nil, textBackgroundColor: table|nil, priority: number|nil, x: number|nil, y: number|nil, dynamic: boolean|nil, wrapped: boolean|nil, screenBound: boolean|nil)
 ```
 <b>Description:</b><br>
 adds a Hologram/Text to the render<br>
@@ -255,6 +257,8 @@ adds a Hologram/Text to the render<br>
 >dynamic: if false will render it behind every sprite but it can not adjust to the sprite background colors. doesn't change the way it collides! will default to true if not provided
 
 >wrapped: if false won't wrap the text when to big (smart wrapping: wraps at last space if there is one in the current line otherwise wraps to screen size). will default to true if not provided
+
+>screenBound: if false the object can go as far off screen as it wants. defaults to true if not provided
 
 <br><br><br>
 
@@ -327,7 +331,7 @@ gameLib:groupObjects(groupLvl: string, lvlTable: table)
 ```
 <b>Description:</b><br>
 lets you group objects together. They will still render separately and their behavior won't change at all. Is useful if you want to check for multiple collisions at once or change common data for all objects.<br>
-<b><font color="red">!!! WARNING: groups can contain groups may have impact on other functions like gameLib:isColliding, gameLib:isCollidingRaw or gameLib:changeGroupData !!!</font></b><br>
+<b><p style="color:red">!!! WARNING: groups can contain groups may have impact on other functions like gameLib:isColliding, gameLib:isCollidingRaw or gameLib:changeGroupData !!!</p></b><br>
 
 <b>Arguments:</b><br>
 >groupLvl: is a string that gives it the hierarchy e.g: "test.string"
@@ -373,7 +377,7 @@ gameLib:removeObject(lvl: string)
 ```
 <b>Description:</b><br>
 lets you remove objects from the render<br>
-<b><font color="red">!!!Will delete all object data!!!</font></b><br>
+<b><p style="color:red">!!!Will delete all object data!!!</p></b><br>
 
 <b>Arguments:</b><br>
 >lvl: is a string that gives it the hierarchy to remove e.g: "test.string"
@@ -401,7 +405,7 @@ gameLib:isColliding(lvl: string, lvl2: string, isTransparent: boolean|nil)
 ```
 <b>Description:</b><br>
 lets you check if an object (including groups) is on top of an other object (including groups) returns true if it is, otherwise it returns false uses bounding boxes.<br>
-<b><font color="red">Waring may fail if supplied, a group containing more groups (due to lua function stacking prevention)!</font></b><br>
+<b><p style="color:red">Waring may fail if supplied, a group containing more groups (due to lua function stacking prevention)!</p></b><br>
 <b>Arguments:</b><br>
 >lvl: is a string that gives it the hierarchy of the first object (including groups) to check e.g: "test.string"
 
@@ -421,7 +425,7 @@ gameLib:isCollidingRaw(xIn: number, yIn:number, lvl: string, isTransparent: bool
 ```
 <b>Description:</b><br>
 lets you check if a object (including groups) is rendered at certain X,Y Coordinates.<br>
-<b><font color="red">Waring may fail if supplied, a group containing more groups (due to lua function stacking prevention)!</font></b><br>
+<b><p style="color:red">Waring may fail if supplied, a group containing more groups (due to lua function stacking prevention)!</p></b><br>
 
 <b>Arguments:</b><br>
 >xIn: is the X coordinate for the collision check
@@ -451,12 +455,145 @@ lets you render the game<br>
 
 <br><br><br>
 
+### variables
+<p> 
+in this chapter i will tell you about general and object variables and how to get them!
+</p>
+
+#### general variables
+
+<br>
+
+##### game name
+```lua
+local gameName = gameLib:getGameMEMValue("gameName")
+```
+<b>Returned Value:</b><br>
+this is the name of the game set in gameLib:create<br>
+
+##### screen width
+```lua
+local width = gameLib:getGameMEMValue("screenWidth")
+```
+<b>Returned Value:</b><br>
+this is the the width of the output object in pixels<br>
+
+##### screen height
+```lua
+local height = gameLib:getGameMEMValue("screenHeight")
+```
+<b>Returned Value:</b><br>
+this is the the height of the output object in pixels<br>
+
+```lua
+local groups = gameLib:getGameMEMValue("groups.list")
+```
+<b>Returned Value:</b><br>
+this is a table consisting of the names of all groups<br>
+
+<br><br><br>
+
+#### object variables
+
+##### base
+```lua
+local value = gameLib:getGameMEMValue("objectName.variable")
+```
+<p>
+here 'objectName' means something like for example:<br>
+"test.string"<br>
+and 'variable' is an attribute of said object e.g:<br>
+"x"
+</p>
+
+##### X position
+```lua
+local objectX = gameLib:getGameMEMValue("objectName.x")
+```
+<b>Returned Value:</b><br>
+is the x position of the object<br>
+
+##### Y position
+```lua
+local objectY = gameLib:getGameMEMValue("objectName.y")
+```
+<b>Returned Value:</b><br>
+is the y position of the object<br>
+
+##### type
+```lua
+local objectType = gameLib:getGameMEMValue("objectName.type")
+```
+<b>Returned Value:</b><br>
+is a string that says the type of an image<br>
+
+##### existing Types
+
+<p>
+explanation:<br>
+types is the game frame works way of making sure operations like gameLib:isColliding work even when some objects have image matrixes (sprites) and others have text (holograms)
+</p><br>
+existing types are:<br>
+<li>sprite (is a sprite object)
+<li>hologram (is a hologram object)
+<li>spriteClone (is a clone of a sprite object)
+<li>hologramClone (is a clone of a hologram object)
+<li>group (is a group)
+
+##### element number
+```lua
+local objectImg = gameLib:getGameMEMValue("objectName.elementNum")
+```
+<b>Returned Value:</b><br>
+is a integer that tels you at which position in the pre compiled render list it is
+
+##### existing objects.render.list lists
+<p>
+like types there are different render lists for different types. View them like levels of rendering they ensure that a background hologram can never render on top of a sprite
+</p><br>
+existing render lists of<br>
+objects.render.list. < list part goes here<br>
+are:
+<li>backgroundHolograms
+<li>sprites
+<li>holograms
+
+##### sprite (sprite only var)
+```lua
+local objectImg = gameLib:getGameMEMValue("objectName.sprite")
+```
+<b>Returned Value:</b><br>
+is the image matrix of the sprite object
+
+##### text (hologram only var)
+```lua
+local objectText = gameLib:getGameMEMValue("objectName.text")
+```
+<b>Returned Value:</b><br>
+is the text that is displayed by a hologram<br>
+
+##### textColor
+```lua
+local objectImg = gameLib:getGameMEMValue("objectName.textColor")
+```
+<b>Returned Value:</b><br>
+is a table that contains the color formatting e.g.:{red=1,blue=5} (the format consists of color name within the color api and after the '=' the position in the string at which to start coloring p.s.: only changes color when overwritten)
+
+##### textBackgroundColor
+```lua
+local objectImg = gameLib:getGameMEMValue("objectName.textBackgroundColor")
+```
+<b>Returned Value:</b><br>
+is a table that contains the background color formatting e.g.:{yellow=6,purple=1} (the format consists of color name within the color api and after the '=' the position in the string at which to start coloring p.s.: only changes color when overwritten)
+
+<br><br><br>
+
 ### added foot notes
 
 <p>
 I've added a folder that contains all assets and scripts for  a  game called tunnelRunner.lua! to view click here: https://github.com/Redtech0inc/TDGameLib/tree/main/0<br>
 it's built to be on a disk<br>
-<font color="red">will not work outside of a disk due to many references to directories with "disk/" in the beginning</font>
+<p style="color:red">will not work outside of a disk due to many references to directories with "disk/" in the beginning</p>
 <br>
 <br>
 also added a .data file to read into. Useful to get the syntax (very easy)
