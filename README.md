@@ -492,6 +492,15 @@ local groups = gameLib:getGameMEMValue("groups.list")
 <b>Returned Value:</b><br>
 this is a table consisting of the names of all groups<br>
 
+##### screen
+```lua
+local objectText = gameLib:getGameMEMValue("LVL.screen")
+```
+<b>Returned Value:</b><br>
+is the rendered screen as an image matrix
+
+##### 
+
 <br><br><br>
 
 #### object variables
