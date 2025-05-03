@@ -600,6 +600,13 @@ local objectBackgroundTextColor = gameLib:getGameMEMValue("objectName.textBackgr
 <b>Returned Value:</b><br>
 is a table that contains the background color formatting e.g.:{yellow=6,purple=1} (the format consists of color name within the color api and after the '=' the position in the string at which to start coloring p.s.: only changes color when overwritten)
 
+##### object Table (group only var)
+```lua
+local objectNameTable = gameLib:getGameMEMValue("groupName.lvlTable")
+```
+<b>Returned Value:</b><br>
+a table consisting of all object names inside the group
+
 <br><br><br>
 
 ### added foot notes
