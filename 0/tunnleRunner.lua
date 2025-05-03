@@ -1,5 +1,5 @@
 -- Load the game library
-os.loadAPI("disk/zAssets/TDGameLib.lib") -- Make sure TDGameLib.lua is in the same directory
+os.loadAPI("disk/zAssets/TDGameLib.lua") -- Make sure TDGameLib.lua is in the same directory
 
 -- Create the Game Environment & get base variables
 local game = TDGameLib.gameLib:create("Tunnel Runner")
