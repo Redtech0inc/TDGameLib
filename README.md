@@ -555,7 +555,7 @@ existing types are:<br>
 local objectElementNum = gameLib:getGameMEMValue("objectName.elementNum")
 ```
 <b>Returned Value:</b><br>
-is a integer that tels you at which position in the pre compiled render list it is
+is a integer that tells you at which position in the pre compiled render list it is
 
 ##### existing objects.render.list lists
 <p>
