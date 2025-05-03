@@ -265,7 +265,7 @@ adds a Hologram/Text to the render<br>
 ##### changeSpriteData
 
 ```lua
-gameLib:changeSpriteData(lvl: string, img: table|nil, x: number|nil, y: number|nil)
+gameLib:changeSpriteData(lvl: string, img: table|nil, x: number|nil, y: number|nil, screenBound: boolean|nil)
 ```
 <b>Description:</b><br>
 lets you manipulate all data of an existing Sprite<br>
@@ -278,12 +278,14 @@ lets you manipulate all data of an existing Sprite<br>
 
 >y: Y position on screen that it starts to be rendered at. Won't change if not supplied
 
+>screenBound: if false the object can go as far off screen as it wants. defaults to true if not provided
+
 <br><br><br>
 
 ##### changeHologramData
 
 ```lua
-gameLib:changeHologramData(lvl: string, text: string|nil, textColor: table|nil, textBackgroundColor: table|nil, x: number|nil, y: number|nil, wrapped: boolean|nil)
+gameLib:changeHologramData(lvl: string, text: string|nil, textColor: table|nil, textBackgroundColor: table|nil, x: number|nil, y: number|nil, wrapped: boolean|nil, screenBound: boolean|nil)
 ```
 <b>Description:</b><br>
 lets you manipulate all data fo an existing Hologram<br>
@@ -301,6 +303,8 @@ lets you manipulate all data fo an existing Hologram<br>
 >y: Y position on screen that it gets written at. Won't change if not supplied
 
 >wrapped: if false won't wrap the text when to big (smart wrapping: wraps at last space if there is one in the current line otherwise wraps to screen size). Won't change if not supplied
+
+>screenBound: if false the object can go as far off screen as it wants. defaults to true if not provided
 
 <br><br><br>
 
