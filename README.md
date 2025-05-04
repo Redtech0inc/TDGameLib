@@ -498,7 +498,7 @@ this is a table consisting of the names of all groups<br>
 
 ##### Screen
 ```lua
-local objectText = gameLib:getGameMEMValue("LVL.screen")
+local screen = gameLib:getGameMEMValue("LVL.screen")
 ```
 <b>Returned Value:</b><br>
 is the rendered screen as an image matrix
@@ -593,14 +593,14 @@ is the text that is displayed by a hologram<br>
 
 ##### Text Color (hologram only var)
 ```lua
-local objectImg = gameLib:getGameMEMValue("objectName.textColor")
+local objectTextColor = gameLib:getGameMEMValue("objectName.textColor")
 ```
 <b>Returned Value:</b><br>
 is a table that contains the color formatting e.g.:{red=1,blue=5} (the format consists of color name within the color api and after the '=' the position in the string at which to start coloring p.s.: only changes color when overwritten)
 
 ##### Text Background Color (hologram only var)
 ```lua
-local objectImg = gameLib:getGameMEMValue("objectName.textBackgroundColor")
+local objectTextBackgroundColor = gameLib:getGameMEMValue("objectName.textBackgroundColor")
 ```
 <b>Returned Value:</b><br>
 is a table that contains the background color formatting e.g.:{yellow=6,purple=1} (the format consists of color name within the color api and after the '=' the position in the string at which to start coloring p.s.: only changes color when overwritten)
