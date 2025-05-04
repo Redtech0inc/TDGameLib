@@ -2,12 +2,12 @@
 ## About the TDGameLib
 
 
-### info
+### Info
 this is a library to make games easier to develop in CCTweaked (minecraft mod)<br><br>
 
 made for CCTweaked Versions 1.16.x to 1.20.x
 
-### how to set up
+### How to Set Up
 start by adding the package to your project via<br><br>
 ```lua
 os.loadAPI("TDGameLib.lua")
@@ -29,9 +29,9 @@ which will then create an object under your **namespace**
 
 <p> for this case i will call the object 'gameLib'</p>
 
-### functions
+### Functions
 
-#### Game FrameWork based functions
+#### Game FrameWork Based Functions
 
 ##### create
 
@@ -101,7 +101,7 @@ lets you take all objects & groups and turn them into a .data(.html and .xml mix
 
 <br>
 
-#### gameMEM based Functions
+#### GameMEM Based Functions
 <br>
 
 ##### setGameMEMValue
@@ -133,7 +133,7 @@ lets you look inside the self.gameMEM hierarchy<br>
 
 <br>
 
-#### image based functions
+#### Image Based Functions
 
 <br>
 
@@ -206,7 +206,7 @@ lets you set a background via gameLib:loadImage advised to be the length & width
 
 <br>
 
-#### object based functions
+#### Object Based Functions
 
 <br>
 
@@ -314,7 +314,7 @@ lets you manipulate all data fo an existing Hologram<br>
 gameLib:cloneObject(lvl: string, priority: number|nil, x: number|nil, y: number|nil, groupClones: boolean|nil)
 ```
 <b>Description:</b><br>
-allows you to make a clone of a sprite this wll create a object that share the same texture as it's parent object<br>
+allows you to make a clone of a sprite this wll create a object that share the same texture as it's parent object. new object is named: parentObject.clone[cloneNumber] e.g.:"test.string.clone1" or "test.string.clone2"<br>
 <b>Arguments:</b><br>
 >lvl: is the string that gives it the hierarchy to clone e.g:"test.string" (only sprites)
 
@@ -445,7 +445,7 @@ lets you check if a object (including groups) is rendered at certain X,Y Coordin
 
 <br>
 
-#### rendering based functions
+#### Rendering Based Functions
 
 <br>
 
@@ -459,44 +459,44 @@ lets you render the game<br>
 
 <br><br><br>
 
-### variables
+### Variables
 <p> 
 in this chapter i will tell you about general and object variables and how to get them!
 </p>
 
-#### general variables
+#### General Variables
 
 <br>
 
-##### game name
+##### Game Name
 ```lua
 local gameName = gameLib:getGameMEMValue("gameName")
 ```
 <b>Returned Value:</b><br>
 this is the name of the game set in gameLib:create<br>
 
-##### screen width
+##### Screen Width
 ```lua
 local width = gameLib:getGameMEMValue("screenWidth")
 ```
 <b>Returned Value:</b><br>
 this is the the width of the output object in pixels<br>
 
-##### screen height
+##### Screen Height
 ```lua
 local height = gameLib:getGameMEMValue("screenHeight")
 ```
 <b>Returned Value:</b><br>
 this is the the height of the output object in pixels<br>
 
-##### group list
+##### Group List
 ```lua
 local groups = gameLib:getGameMEMValue("groups.list")
 ```
 <b>Returned Value:</b><br>
 this is a table consisting of the names of all groups<br>
 
-##### screen
+##### Screen
 ```lua
 local objectText = gameLib:getGameMEMValue("LVL.screen")
 ```
@@ -507,9 +507,9 @@ is the rendered screen as an image matrix
 
 <br><br><br>
 
-#### object variables
+#### Object Variables
 
-##### base
+##### Base
 ```lua
 local value = gameLib:getGameMEMValue("objectName.variable")
 ```
@@ -534,14 +534,14 @@ local objectY = gameLib:getGameMEMValue("objectName.y")
 <b>Returned Value:</b><br>
 is the y position of the object<br>
 
-##### type
+##### Type
 ```lua
 local objectType = gameLib:getGameMEMValue("objectName.type")
 ```
 <b>Returned Value:</b><br>
 is a string that says the type of an image<br>
 
-##### existing Types
+##### Existing Types
 
 <p>
 explanation:<br>
@@ -554,14 +554,14 @@ existing types are:<br>
 <li>hologramClone (is a clone of a hologram object)
 <li>group (is a group)
 
-##### element number
+##### Element Number
 ```lua
 local objectElementNum = gameLib:getGameMEMValue("objectName.elementNum")
 ```
 <b>Returned Value:</b><br>
 is a integer that tells you at which position in the pre compiled render list it is
 
-##### existing objects.render.list lists
+##### Existing objects.render.list lists
 <p>
 like types there are different render lists for different types. View them like levels of rendering they ensure that a background hologram can never render on top of a sprite
 </p><br>
@@ -572,35 +572,35 @@ are:
 <li>sprites
 <li>holograms
 
-##### sprite (sprite only var)
+##### Sprite (sprite only var)
 ```lua
 local objectImg = gameLib:getGameMEMValue("objectName.sprite")
 ```
 <b>Returned Value:</b><br>
 is the image matrix of the sprite object
 
-##### text (hologram only var)
+##### Text (hologram only var)
 ```lua
 local objectText = gameLib:getGameMEMValue("objectName.text")
 ```
 <b>Returned Value:</b><br>
 is the text that is displayed by a hologram<br>
 
-##### textColor (hologram only var)
+##### Text Color (hologram only var)
 ```lua
-local objectTextColor = gameLib:getGameMEMValue("objectName.textColor")
+local objectImg = gameLib:getGameMEMValue("objectName.textColor")
 ```
 <b>Returned Value:</b><br>
 is a table that contains the color formatting e.g.:{red=1,blue=5} (the format consists of color name within the color api and after the '=' the position in the string at which to start coloring p.s.: only changes color when overwritten)
 
-##### textBackgroundColor (hologram only var)
+##### Text Background Color (hologram only var)
 ```lua
-local objectBackgroundTextColor = gameLib:getGameMEMValue("objectName.textBackgroundColor")
+local objectImg = gameLib:getGameMEMValue("objectName.textBackgroundColor")
 ```
 <b>Returned Value:</b><br>
 is a table that contains the background color formatting e.g.:{yellow=6,purple=1} (the format consists of color name within the color api and after the '=' the position in the string at which to start coloring p.s.: only changes color when overwritten)
 
-##### object Table (group only var)
+##### Object Table (group only var)
 ```lua
 local objectNameTable = gameLib:getGameMEMValue("groupName.lvlTable")
 ```
@@ -609,7 +609,7 @@ a table consisting of all object names inside the group
 
 <br><br><br>
 
-### added foot notes
+### Added Foot Notes
 
 <p>
 I've added a folder that contains all assets and scripts for  a  game called tunnelRunner.lua! to view click here: https://github.com/Redtech0inc/TDGameLib/tree/main/0<br>
