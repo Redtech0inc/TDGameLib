@@ -1281,7 +1281,7 @@ end
 ---@param img table|nil is the sprite that will be displayed can be loaded from .nfp file through gameLib:loadImage won't change if not supplied
 ---@param x number|nil X position on screen that it starts to be rendered at. Won't change if not supplied
 ---@param y number|nil Y position on screen that it starts to be rendered at. Won't change if not supplied
----@---@param screenBound boolean|nil if false the object can go as far off screen as it wants. defaults to true if not provided
+---@param screenBound boolean|nil if false the object can go as far off screen as it wants. defaults to true if not provided
 function gameLib:changeSpriteData(lvl,img,x,y,screenBound)
     self:createSubTables(lvl)
 
