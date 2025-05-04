@@ -503,7 +503,12 @@ local objectText = gameLib:getGameMEMValue("LVL.screen")
 <b>Returned Value:</b><br>
 is the rendered screen as an image matrix
 
-##### 
+##### Monitor (only works if a monitor is in use)
+```lua
+local monitor = gameLib:getGameMEMValue("monitor")
+```
+<b>Returned Value:</b><br>
+if it isn't nil then it is the used monitor object
 
 <br><br><br>
 
