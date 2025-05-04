@@ -582,14 +582,14 @@ are:
 local objectImg = gameLib:getGameMEMValue("objectName.sprite")
 ```
 <b>Returned Value:</b><br>
-is the image matrix of the sprite object
+is the image matrix of the sprite object or in the case of a sprite clone, a string that is the name of the parent Sprite
 
 ##### Text (hologram only var)
 ```lua
 local objectText = gameLib:getGameMEMValue("objectName.text")
 ```
 <b>Returned Value:</b><br>
-is the text that is displayed by a hologram<br>
+is the text that is displayed by a hologram or in the case of a hologram clone, a string that is the name of the parent hologram<br>
 
 ##### Text Color (hologram only var)
 ```lua
