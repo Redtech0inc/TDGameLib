@@ -311,7 +311,7 @@ lets you manipulate all data fo an existing Hologram<br>
 ##### cloneObject
 
 ```lua
-gameLib:cloneObject(lvl: string, priority: number|nil, x: number|nil, y: number|nil, groupClones: boolean|nil)
+gameLib:cloneObject(lvl: string, priority: number|nil, x: number|nil, y: number|nil, groupClones: boolean|nil, screenBound: boolean|nil)
 ```
 <b>Description:</b><br>
 allows you to make a clone of a sprite this wll create a object that share the same texture as it's parent object. new object is named: parentObject.clone[cloneNumber] e.g.:"test.string.clone1" or "test.string.clone2"<br>
@@ -325,6 +325,8 @@ allows you to make a clone of a sprite this wll create a object that share the s
 >y: Y position of the Sprite (will start rendering at that x pos). defaults to 1 if not provided
 
 >groupClones: if true will create/add objects to a group named: lvl+".spriteClone.group"  (e.g: "test.string.spriteClone.group") consisting of the parent object and all it's spriteClones (useful for checking for collisions of parent and spriteClones). defaults to false if not provided
+
+>screenBound: if false the object can go as far off screen as it wants. defaults to true if not provided
 
 <br><br><br>
 
@@ -614,14 +616,226 @@ a table consisting of all object names inside the group
 
 <br><br><br>
 
+### .data file syntax
+<p>
+the ability to pre define objects via a file is a feature since TDGameLib V1.0 in the form of .data file 
+<br>(i have put one in the repo: https://github.com/Redtech0inc/TDGameLib/blob/main/doc.data)<br>
+in this chapter i tell you about the syntax of .data files
+</p>
+<b>What happens during Data => lua conversion</b>
+<p>
+when i made the .data syntax my goals were:
+<li>readability
+<li>easy to understand
+<li>easy to transcript
+
+<br>to achieve this i made it so that every tag(```<...>```) is equal to a string in lua e.g:<br>
+```xml
+<sprites>
+    ...
+</sprites>
+```
+transcripts to
+```lua
+sprites = {
+    ...
+}
+```
+(this tag is the start of a list containing all sprite objects)
+</p><br>
+
+#### body tag
+```xml
+<body>
+    ... 
+</body>
+```
+this transcripts to
+```lua
+{
+    ...
+}
+```
+`<body>` is the entry point for the data to lua transcription<br>
+`</body>` therefor counts as exit point.<br>
+keep in mind that everything after `</body>` won't be decrypted!<br>
+p.s.: can be useful to put own tags after `</body>`
+
+<br><br><br>
+
+#### image tag
+```xml
+<image>...<br>...</image>
+```
+this transcripts to
+```lua
+{
+    {
+        ...
+    },{
+        ...
+    }
+}
+```
+or compacted: `{{...},{...}}`<br>
+
+this, as you may have already noticed, is a matrix more specific an image matrix
+it is important to note that each subList in the matrix is from left to right a column from top to bottom. so<br>
+`image[1][2] => "a"` and `image[2][1] => "b"` is `{{nil,a},{b,nil}}`!<br>
+<br>
+`<image>` is equal to `{{` and `</image>` transcripts to `}}`
+so does `<br>` equal to `},{`
+
+<br><br><br>
+
+#### object tag
+```xml
+<object> ... </object>
+```
+transcripts to:
+```lua
+{...},
+```
+on it's own this tag can't do anything it's just there to put all data of an object inside of it so it's mostly used with object  describing tags like for example: `<sprites> ... </sprites>` 
+
+<br><br><br>
+
+#### background tag
+```xml
+<background>
+    <image> ... </image>
+</background>
+```
+transcripts to:
+```lua
+background = {
+    {{ ... }}
+}
+```
+this tells the library the background as an image matrix.<br>
+so you have to put `<image>` inside of `<background>`
+
+<br><br><br>
+
+#### sprite tag
+```xml
+<sprites>
+    <object>
+        "test.sprite", <image>512,512</image>, nil, 5, 5, false
+    </object>
+    <object>
+        ...
+    </object>
+    ...
+</sprites>
+```
+transcripts to:
+```lua
+sprites={
+    {
+        "test.sprite", {{512,512}}, nil, 5, 5, false
+    },
+    {
+        ...
+    },
+    ...
+}
+```
+now as you may have already noticed, all theses values are arguments, that can be parsed on to gameLib:addSprite.<br>
+That is exactly what happens when transcribing it.
+
+<br><br><br>
+
+#### hologram tag
+```xml
+<holograms>
+    <object>
+        "test.hologram", "text goes here", {blue=1, red=5}, {yellow=2, green=6}, nil, 10, 13, true, nil, true
+    </object>
+    <object>
+        ...
+    </object>
+    ...
+</holograms>
+```
+transcripts to:
+```lua
+holograms= {
+    {
+        "test.hologram", "text goes here", {blue=1, red=5}, {yellow=2, green=6}, nil, 10, 13, true, nil, true
+    },
+    {
+        ...
+    },
+    ...
+}
+```
+as you may have already noticed, all theses values are arguments, that can be parsed on to gameLib:addHologram.<br>
+That is exactly what happens when transcribing it.<br>
+this also transcribes for non dynamic as well as dynamic holograms (argument8 = dynamic: boolean|nil).
+
+<br><br><br>
+
+#### clone tag
+```xml
+<clones>
+    <object>
+        "test.sprite1", nil, 1, 3, false, true 
+    </object>
+    <object>
+        ...
+    </object>
+    ...
+</clones>
+```
+transcripts to:
+```lua
+clones = {
+    {
+        "test.sprite1", nil, 1, 3, false, true
+    },
+    {
+        ...
+    },
+    ...
+}
+```
+again, these ar all arguments that can be parsed onto the gameLib:cloneObject.<br>
+this will be done once  it's transcribed.
+
+<br><br><br>
+
+#### group tag
+```xml
+<groups>
+    <object>
+        "test.group", <object> "test.sprite1", "test.sprite", "test.hologram </object>
+    </object>
+    <object>
+        ...
+    </object>
+    ...
+</groups>
+```
+transcripts to:
+```lua
+groups = {
+    {
+        "test.group", {"test.sprite1", "test.sprite", "test.hologram"}
+    },
+    {
+        ...
+    },
+    ...
+}
+```
+this describes a group and as you see `<object>` is used two times here,<br>once to describe the group object and the other time to describe all objects inside of the group
+
+<br><br><br>
+
 ### Added Foot Notes
 
 <p>
-I've added a folder that contains all assets and scripts for  a  game called tunnelRunner.lua! to view click here: https://github.com/Redtech0inc/TDGameLib/tree/main/0<br>
+I've added a folder that contains all assets and scripts for a game called tunnelRunner.lua! to view click here: https://github.com/Redtech0inc/TDGameLib/tree/main/0<br>
 it's built to be on a disk<br>
 <p style="color:red">will not work outside of a disk due to many references to directories with "disk/" in the beginning</p>
-<br>
-<br>
-also added a .data file to read into. Useful to get the syntax (very easy)
-https://github.com/Redtech0inc/TDGameLib/blob/main/doc.data
-</p>
