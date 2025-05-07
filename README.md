@@ -463,7 +463,7 @@ lets you render the game<br>
 
 ### Variables
 <p> 
-in this chapter i will tell you about general and object variables and how to get them!
+in this "chapter" i will tell you about general and object variables and how to get them!
 </p>
 
 #### General Variables
@@ -618,9 +618,10 @@ a table consisting of all object names inside the group
 
 ### .data file syntax
 <p>
-the ability to pre define objects via a file is a feature since TDGameLib V1.0 in the form of .data file 
+the ability to pre define objects via a file is a feature since TDGameLib V1.0 in the form of .data file<br>
+this can be used to make a game level with pre defined objects for example.
 <br>(i have put one in the repo: https://github.com/Redtech0inc/TDGameLib/blob/main/doc.data)<br>
-in this chapter i tell you about the syntax of .data files
+in this "chapter" i tell you about the syntax of .data files
 </p>
 <b>What happens during Data => lua conversion</b>
 <p>
@@ -629,7 +630,7 @@ when i made the .data syntax my goals were:
 <li>easy to understand
 <li>easy to transcript
 
-<br>to achieve this i made it so that every tag(```<...>```) is equal to a string in lua e.g:<br>
+<br>to achieve this i made it so that every tag(`<...>`) is equal to a string in lua e.g:<br>
 ```xml
 <sprites>
     ...
@@ -839,3 +840,4 @@ this describes a group and as you see `<object>` is used two times here,<br>once
 I've added a folder that contains all assets and scripts for a game called tunnelRunner.lua! to view click here: https://github.com/Redtech0inc/TDGameLib/tree/main/0<br>
 it's built to be on a disk<br>
 <p style="color:red">will not work outside of a disk due to many references to directories with "disk/" in the beginning</p>
+
