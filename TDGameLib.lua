@@ -1565,10 +1565,27 @@ function gameLib:changeGroupData(groupLvl,x,y)
 end
 
 ---lets you remove objects from the render !!!Will delete all object data!!!
----@param lvl string is a string that gives it the hierarchy to remove e.g: "test.string"
+---@param lvl string is a string that gives it the hierarchy to remove e.g: "test.string". if not provided, removes all objects
 function gameLib:removeObject(lvl)
-    self:createSubTables("objects.render.list.sprites")
-    self:createSubTables("objects.render.list.holograms")
+    if not lvl then
+        for i=1,#self.gameMEM.objects.render.list.backgroundHolograms do
+            self:removeObject(self.gameMEM.objects.render.list.backgroundHolograms[i])
+        end
+        for i=1,#self.gameMEM.objects.render.list.sprites do
+            self:removeObject(self.gameMEM.objects.render.list.sprites[i])
+        end
+        for i=1,#self.gameMEM.objects.render.list.holograms do
+            self:removeObject(self.gameMEM.objects.render.list.holograms[i])
+        end
+        for i=1,#self.gameMEM.groups.list do
+            self:removeObject(self.gameMEM.groups.list[i])
+        end
+        self:setGameMEMValue("objects.render.listLen.backgroundHolograms",-1)
+        self:setGameMEMValue("objects.render.listLen.sprites",-1)
+        self:setGameMEMValue("objects.render.listLen.holograms",-1)
+        return
+    end
+
     local node = self:getSubTable(lvl)
 
     if not node then return end
@@ -1617,14 +1634,16 @@ function gameLib:removeObject(lvl)
                 end
             end
         end
+    elseif node.type == "group" then
+        node.lvlTable = nil
+        node.type = nil
     end
-
-    self:updateRenderLists()
-    self:cleanGameMEM(lvl)
 
     local node,keys = self:getSubTable(lvl,false)
     node[keys[#keys]] = nil
 
+    self:updateRenderLists()
+    self:cleanGameMEM(lvl)
 end
 
 ---lets you remove Objects from the group lvl table
