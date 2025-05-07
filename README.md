@@ -340,8 +340,7 @@ lets you group objects together. They will still render separately and their beh
 <b><p style="color:red">!!! WARNING: groups can contain groups may have impact on other functions like gameLib:isColliding, gameLib:isCollidingRaw or gameLib:changeGroupData !!!</p></b><br>
 
 <b>Arguments:</b><br>
->groupLvl: is a string that gives it the hierarchy e.g: "test.string"
-
+>lvl: is a string that gives it the hierarchy to remove e.g: "test.string". if not provided, removes all objects
 >lvlTable: is a table of object (= sprites, holograms, clones) hierarchies that are a part of this group e.g: "test.string","test.number",ect...
 
 <br><br><br>
