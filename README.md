@@ -385,7 +385,7 @@ lets you remove objects from the render<br>
 <b><p style="color:red">!!!Will delete all object data!!!</p></b><br>
 
 <b>Arguments:</b><br>
->lvl: is a string that gives it the hierarchy to remove e.g: "test.string". removes all objects if not provided
+>lvl: is a string that gives it the hierarchy to remove e.g: "test.string". if not provided, removes all objects
 
 <br><br><br>
 
