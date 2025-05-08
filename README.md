@@ -132,7 +132,7 @@ lets you look inside the self.gameMEM hierarchy<br>
 >table: will return all values from the given place on in the hierarchy or self.gameMEM if place is nil
 
 <b>If Unsuccessful:</b><br>
->string: returns a string as 2nd return value when the value could not be found (helpful if output is error: attempted to perform arithmetic on table value)
+>string: returns an error as a string when the value could not be found (helpful for debugging)
 
 <br>
 
