@@ -131,6 +131,9 @@ lets you look inside the self.gameMEM hierarchy<br>
 <b>Returns:</b>
 >table: will return all values from the given place on in the hierarchy or self.gameMEM if place is nil
 
+<b>If Unsuccessful:</b><br>
+>string: returns a string as 2nd return value when the value could not be found (helpful if output is error: attempted to perform arithmetic on table value)
+
 <br>
 
 #### Image Based Functions
@@ -340,7 +343,8 @@ lets you group objects together. They will still render separately and their beh
 <b><p style="color:red">!!! WARNING: groups can contain groups may have impact on other functions like gameLib:isColliding, gameLib:isCollidingRaw or gameLib:changeGroupData !!!</p></b><br>
 
 <b>Arguments:</b><br>
->lvl: is a string that gives it the hierarchy to remove e.g: "test.string". if not provided, removes all objects
+>groupLvl: is a string that gives it the hierarchy e.g: "test.string"
+
 >lvlTable: is a table of object (= sprites, holograms, clones) hierarchies that are a part of this group e.g: "test.string","test.number",ect...
 
 <br><br><br>
