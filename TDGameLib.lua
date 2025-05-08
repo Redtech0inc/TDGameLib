@@ -1008,7 +1008,7 @@ function gameLib:getGameMEMValue(place)
         for i = 1, #keys - 1 do
             local key = keys[i]
             if node[key] == nil then
-                return {}
+                return {}, "ERROR: could not find value returned empty table!"
             end
             node = node[key]
         end
@@ -1283,9 +1283,10 @@ end
 ---@param y number|nil Y position on screen that it starts to be rendered at. Won't change if not supplied
 ---@param screenBound boolean|nil if false the object can go as far off screen as it wants. defaults to true if not provided
 function gameLib:changeSpriteData(lvl,img,x,y,screenBound)
-    self:createSubTables(lvl)
 
     local node = self:getSubTable(lvl)
+
+    if not node then return end
 
     if screenBound ~= nil then node.screenBound = toboolean(screenBound) end
 
@@ -1319,9 +1320,11 @@ end
 ---@param y number|nil Y position on screen that it gets written at. Won't change if not supplied
 ---@param screenBound boolean|nil if false the object can go as far off screen as it wants. defaults to true if not provided
 function gameLib:changeHologramData(lvl,text,textColor,textBackgroundColor,x,y,wrapped,screenBound)
-    self:createSubTables(lvl)
+    --self:createSubTables(lvl)
 
     local node = self:getSubTable(lvl)
+
+    if not node then return end
 
     if wrapped == nil then wrapped = node.wrapped end
     if screenBound ~= nil then node.screenBound = toboolean(screenBound) end
@@ -1539,7 +1542,7 @@ function gameLib:changeGroupData(groupLvl,x,y)
 
     local node = self:getSubTable(groupLvl)
 
-    if not node.lvlTable then error("Can't modify non existing group") end
+    if not node or not node.lvlTable then error("Can't modify non existing group") end
 
     local groupList = node.lvlTable
 
@@ -1548,18 +1551,20 @@ function gameLib:changeGroupData(groupLvl,x,y)
 
         local obj = self:getSubTable(groupList[i])
 
-        if type(x) == "number" and obj.x and not (obj.x+x < 1) and not obj.x+x > self.gameMEM.screenWidth then
-            --modifies unlike gameLib:changeSpriteData
-            obj.x = math.floor(obj.x + x)
-        elseif type(x) == "number" and not node.screenBound then
-            obj.x = math.floor(x)
-        end
+        if obj then
+            if type(x) == "number" and obj.x and not (obj.x+x < 1) and not obj.x+x > self.gameMEM.screenWidth then
+                --modifies unlike gameLib:changeSpriteData
+                obj.x = math.floor(obj.x + x)
+            elseif type(x) == "number" and not node.screenBound then
+                obj.x = math.floor(x)
+            end
 
-        if type(x) == "number" and obj.y and not (obj.y+y < 1) and not obj.y+y > self.gameMEM.screenHeight then
-            --modifies unlike gameLib:changeSpriteData
-            obj.y = math.floor(obj.y + y)
-        elseif type(x) == "number" and not node.screenBound then
-            obj.y = math.floor(y)
+            if type(x) == "number" and obj.y and not (obj.y+y < 1) and not obj.y+y > self.gameMEM.screenHeight then
+                --modifies unlike gameLib:changeSpriteData
+                obj.y = math.floor(obj.y + y)
+            elseif type(x) == "number" and not node.screenBound then
+                obj.y = math.floor(y)
+            end
         end
     end
 end
@@ -1569,17 +1574,29 @@ end
 function gameLib:removeObject(lvl)
     if not lvl then
         for i=1,#self.gameMEM.objects.render.list.backgroundHolograms do
-            self:removeObject(self.gameMEM.objects.render.list.backgroundHolograms[i])
+            if self.gameMEM.objects.render.list.backgroundHolograms[i] then
+                self:removeObject(self.gameMEM.objects.render.list.backgroundHolograms[i][1])
+            end
         end
         for i=1,#self.gameMEM.objects.render.list.sprites do
-            self:removeObject(self.gameMEM.objects.render.list.sprites[i])
+            if self.gameMEM.objects.render.list.sprites[i] then
+                self:removeObject(self.gameMEM.objects.render.list.sprites[i][1])
+            end
         end
         for i=1,#self.gameMEM.objects.render.list.holograms do
-            self:removeObject(self.gameMEM.objects.render.list.holograms[i])
+            if self.gameMEM.objects.render.list.holograms[i] then
+                self:removeObject(self.gameMEM.objects.render.list.holograms[i][1])
+            end
         end
         for i=1,#self.gameMEM.groups.list do
-            self:removeObject(self.gameMEM.groups.list[i])
+            if self.gameMEM.groups.list[i] then
+                self:removeObject(self.gameMEM.groups.list[i])
+            end
         end
+        self.gameMEM.objects.render.list.backgroundHolograms = {}
+        self.gameMEM.objects.render.list.sprites = {}
+        self.gameMEM.objects.render.list.holograms = {}
+        self.gameMEM.groups.list = {}
         self:setGameMEMValue("objects.render.listLen.backgroundHolograms",-1)
         self:setGameMEMValue("objects.render.listLen.sprites",-1)
         self:setGameMEMValue("objects.render.listLen.holograms",-1)
@@ -1678,6 +1695,7 @@ function gameLib:isColliding(lvl, lvl2, isTransparent)
     if isTransparent == nil then
         isTransparent = false
     end
+    
     if not obj1 or not obj2 or not obj1.type or not obj2.type then return false end
 
     if obj1.type == "group" and obj2.type == "group" then
@@ -2143,7 +2161,6 @@ function gameLib:render()
     --[[for i =1,#self.gameMEM.objects.render.subTasks do
         parallel.waitForAny(self.gameMEM.objects.render.subTasks[i])
     end]]
-
     parallel.waitForAll(table.unpack(self.gameMEM.objects.render.subTasks))
 
     if self.gameMEM.monitor then
