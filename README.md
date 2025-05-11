@@ -5,7 +5,9 @@
 ### Info
 this is a library to make games easier to develop in CCTweaked (minecraft mod)<br><br>
 
-made for CCTweaked Versions 1.16.x to 1.20.x
+made for CCTweaked Versions 1.20.x
+
+there is a nother version that worsk from 1.13.x to 1.19.x in this folder
 
 ### How to Set Up
 start by adding the package to your project via<br><br>
