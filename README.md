@@ -419,7 +419,7 @@ gameLib:isColliding(lvl: string, lvl2: string, isTransparent: boolean|nil)
 ```
 <b>Description:</b><br>
 lets you check if an object (including groups) is on top of an other object (including groups) returns true if it is, otherwise it returns false uses bounding boxes.<br>
-<b><p style="color:red">Waring may fail if supplied, a group containing more groups (due to lua function stacking prevention)!</p></b><br>
+<b><p style="color:red">!!!Waring may fail if supplied, a group containing more groups (due to lua function stacking prevention)!!!</p></b><br>
 <b>Arguments:</b><br>
 >lvl: is a string that gives it the hierarchy of the first object (including groups) to check e.g: "test.string"
 
