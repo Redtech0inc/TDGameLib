@@ -5,9 +5,9 @@
 ### Info
 this is a library to make games easier to develop in CCTweaked (minecraft mod)<br><br>
 
-made for CCTweaked Versions 1.20.x
+made for CCTweaked Version 1.20.x (these are mc versions)
 
-there is another version that works from 1.13.x to 1.19.x in this folder:<br>
+there is another version that works from version 1.13.x to version 1.19.x (these are mc versions) in this folder:<br>
 [1.13.xTo1.19.xVersions](https://github.com/Redtech0inc/TDGameLib/tree/main/1.13.xTo1.19.xVersions)
 
 ### How to Set Up
@@ -39,13 +39,15 @@ which will then create an object under your **namespace**
 ##### create
 
 ```lua
-gameLib:create(gameName: any, useMonitor: boolean|nil, monitorFilter: table|nil, pixelSize: number|nil, screenStartX: number|nil, screenStartY: number|nil, screenEndX: number|nil, screenEndY: number|nil)
+gameLib:create(gameName: any, onErrorCall: function|nil, useMonitor: boolean|nil, monitorFilter: table|nil, pixelSize: number|nil, screenStartX: number|nil, screenStartY: number|nil, screenEndX: number|nil, screenEndY: number|nil)
 ```
 <b>Description:</b><br>
 creates a framework for a 2D game<br>
 
 <b>Arguments:</b><br>
 >gameName: name of the game given to the game.gameName
+
+>onErrorCall: if supplied is called before the TDGameLib Runs into an error, may not work if the error not called by GameLib it's self!
 
 >useMonitor: if true will make the game render on a connected monitor. defaults to false if not provided
 
@@ -470,6 +472,16 @@ lets you render the game<br>
 ### Variables
 <p> 
 in this "chapter" i will tell you about general and object variables and how to get them!
+you can also change these by using:
+
+```lua
+gameLib:setGameMEMValue(variable,value)
+```
+in this example ` variable` stands for the variable you want to change<br>
+and `value` the value you want to set it to.<br>
+this works for any variable inside the gameMEM
+<b><p style="color:red">Warning variables should not be changed to different types so a function should only be set to a function, if you do mix things up there maybe some errors occurring that can't be over ruled</p></b>
+
 </p>
 
 #### General Variables
@@ -517,6 +529,13 @@ local monitor = gameLib:getGameMEMValue("monitor")
 ```
 <b>Returned Value:</b><br>
 if it isn't nil then it is the used monitor object
+
+##### Error Function
+```lua
+local ErrFunction = gameLib:getGameMEMValue("ErrFunc")
+```
+<b>Returned Value:</b><br>
+this is the function that is first called before the TDGameLib calls out an error
 
 <br><br><br>
 
