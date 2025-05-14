@@ -545,12 +545,11 @@ this is the function that is first called before the TDGameLib calls out an erro
 ```lua
 local value = gameLib:getGameMEMValue("objectName.variable")
 ```
-<p>
-here 'objectName' means something like for example:<br>
+
+here `objectName` means something like for example:<br>
 "test.string"<br>
-and 'variable' is an attribute of said object e.g:<br>
+and `variable` is an attribute of said object e.g:<br>
 "x"
-</p>
 
 ##### X position
 ```lua
