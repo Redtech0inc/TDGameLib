@@ -480,7 +480,7 @@ gameLib:setGameMEMValue(variable,value)
 in this example `variable` stands for the variable you want to change<br>
 and `value` the value you want to set it to.<br>
 this works for any variable inside the gameMEM
-<b><p style="color:red">!!!Warning: variables should not be changed to different types so a function should only be set to a function. If you do mix things up, there maybe some errors occurring that can't be over ruled!!!</p></b>
+<b><p style="color:red">!!!Warning: variables should not be changed to different types so a function should only be set to a function. If you do mix things up, there maybe some errors occurring that can't be overruled!!!</p></b>
 
 </p>
 
