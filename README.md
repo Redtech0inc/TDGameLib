@@ -439,7 +439,7 @@ gameLib:isCollidingRaw(xIn: number, yIn:number, lvl: string, isTransparent: bool
 ```
 <b>Description:</b><br>
 lets you check if a object (including groups) is rendered at certain X,Y Coordinates.<br>
-<b><p style="color:red">Waring may fail if supplied, a group containing more groups (due to lua function stacking prevention)!</p></b><br>
+<b><p style="color:red">!!!Waring may fail if supplied, a group containing more groups (due to lua function stacking prevention)!!!</p></b><br>
 
 <b>Arguments:</b><br>
 >xIn: is the X coordinate for the collision check
@@ -480,7 +480,7 @@ gameLib:setGameMEMValue(variable,value)
 in this example `variable` stands for the variable you want to change<br>
 and `value` the value you want to set it to.<br>
 this works for any variable inside the gameMEM
-<b><p style="color:red">Warning variables should not be changed to different types so a function should only be set to a function, if you do mix things up there maybe some errors occurring that can't be over ruled</p></b>
+<b><p style="color:red">!!!Warning: variables should not be changed to different types so a function should only be set to a function, if you do mix things up there maybe some errors occurring that can't be over ruled!!!</p></b>
 
 </p>
 
