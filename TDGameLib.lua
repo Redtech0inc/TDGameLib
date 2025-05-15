@@ -533,7 +533,7 @@ end
 ---@param gameName any name of the game given to the game.gameName
 ---@param onErrorCall function|nil if supplied is called before the TDGameLib Runs into an error, may not work if the error not called by GameLib it's self!
 ---@param useMonitor boolean|nil if true will make the game render on a connected monitor. defaults to false if not provided
----@param monitorFilter table|function|nil is the name of the monitor that gets picked will picks names higher up first. can also be a function that filters like the normal peripheral.find (REQUIRES MONITOR)
+---@param monitorFilter table|function|nil is the name of the monitor that gets picked, will pick names higher up first. can also be a function that filters like the normal peripheral.find (REQUIRES MONITOR)
 ---@param pixelSize number|nil is the size of a pixel on a monitor can range from 0.5 to 5 (REQUIRES MONITOR)
 ---@param screenStartX number|nil is the X coordinate at which the render starts, defaults to 1 if not provided
 ---@param screenStartY number|nil is the Y coordinate at which the render starts, defaults to 1 if not provided
