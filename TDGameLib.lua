@@ -2128,6 +2128,13 @@ function gameLib:isCollidingRaw(xIn, yIn, lvl, isTransparent)
     return true
 end
 
+---this function is like the read() function except it is like a window to write in
+---@param lvl string is a string that gives it the hierarchy e.g: "test.string", must be a hologram object
+---@param width number is width of the window to write in note that the cursor also takes up 1 space so the amount of characters shown are width-1
+---@param character string|nil if supplied replaces every input with this character like read(character)
+---@param textColor number|nil is the color of the text as a color value
+---@param backgroundColor number|nil is the color of the window to write in as a color value
+---@return string userInput is the input from the user as a string
 function gameLib:read(lvl, character, width, textColor, backgroundColor)
     if self.gameMEM.monitor then printError("ERRORecp: gameLib:read should not be used when rendering on a screen!") end
 
