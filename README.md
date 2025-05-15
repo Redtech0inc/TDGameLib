@@ -50,7 +50,7 @@ creates a framework for a 2D game<br>
 
 > pixelSize: is the size of a pixel on a monitor can range from 0.5 to 5 (REQUIRES MONITOR)
 
-> monitorFilter: is the name of the monitor that gets picked will picks names higher up first. can also be a function  that filters like the normal peripheral.find (REQUIRES MONITOR)
+> monitorFilter: is the name of the monitor that gets picked, will pick names higher up first. can also be a function  that filters like the normal peripheral.find (REQUIRES MONITOR)
 
 > screenStartX: is the X coordinate at which the render starts, defaults to 1 if not provided
 
