@@ -5,10 +5,7 @@
 ### Info
 this is a library to make games easier to develop in CCTweaked (minecraft mod)<br><br>
 
-made for CCTweaked Version 1.20.x (these are mc versions)
-
-there is another version that works from version 1.13.x to version 1.19.x (these are mc versions) in this folder:<br>
-[1.13.xTo1.19.xVersions](https://github.com/Redtech0inc/TDGameLib/tree/main/1.13.xTo1.19.xVersions)
+made for CCTweaked Versions 1.13.x to 1.20.x (these are mc versions)
 
 ### How to Set Up
 start by adding the package to your project via<br><br>
@@ -39,7 +36,7 @@ which will then create an object under your **namespace**
 ##### create
 
 ```lua
-gameLib:create(gameName: any, onErrorCall: function|nil, useMonitor: boolean|nil, monitorFilter: table|nil, pixelSize: number|nil, screenStartX: number|nil, screenStartY: number|nil, screenEndX: number|nil, screenEndY: number|nil)
+gameLib:create(gameName: any, onErrorCall: function|nil, useMonitor: boolean|nil, monitorFilter: table|function|nil, pixelSize: number|nil, screenStartX: number|nil, screenStartY: number|nil, screenEndX: number|nil, screenEndY: number|nil)
 ```
 <b>Description:</b><br>
 creates a framework for a 2D game<br>
@@ -53,7 +50,7 @@ creates a framework for a 2D game<br>
 
 > pixelSize: is the size of a pixel on a monitor can range from 0.5 to 5 (REQUIRES MONITOR)
 
-> monitorFilter: is the name of the monitor that gets picked (REQUIRES MONITOR)
+> monitorFilter: is the name of the monitor that gets picked will picks names higher up first. can also be a function  that filters like the normal peripheral.find (REQUIRES MONITOR)
 
 > screenStartX: is the X coordinate at which the render starts, defaults to 1 if not provided
 
@@ -64,7 +61,7 @@ creates a framework for a 2D game<br>
 > screenEndY: is the Y coordinate at which the render ends, defaults to output object height if not provided
 
 <b>Returns:</b><br>
->gameENV: an object which is the game Framework
+>gameENV: table ;an object which is the game Framework
 
 <br><br><br>
 
@@ -134,10 +131,10 @@ lets you look inside the self.gameMEM hierarchy<br>
 > place: place to look in the self.gameMEM hierarchy
 
 <b>Returns:</b>
->table: will return all values from the given place on in the hierarchy or self.gameMEM if place is nil
+>table: table ;will return all values from the given place on in the hierarchy or self.gameMEM if place is nil
 
 <b>If Unsuccessful:</b><br>
->string: returns an error as a string when the value could not be found (helpful for debugging)
+>string: errorMessage ;returns an error as a string when the value could not be found (helpful for debugging)
 
 <br>
 
@@ -156,7 +153,7 @@ lets you load in a .nfp correctly!<br>
 >imgDir: is the path that get's loaded as image table
 
 <b>Returns:</b><br>
->image: the image as Matrix made of color values (read about color values [here](https://tweaked.cc/module/colors.html))
+>image: table ;the image as Matrix made of color values (read about color values [here](https://tweaked.cc/module/colors.html))
 
 <br><br><br>
 
@@ -181,7 +178,7 @@ generates a sprite of geometric shapes<br>
 >side: will determine if the upper or lower half of the right angled triangle is given. Will default to "lower" if not provided
 
 <b>Returns:</b><br>
->img: is the image matrix of the shape
+>img: table ;is the image matrix of the shape
 
 <br><br><br>
 
@@ -198,7 +195,7 @@ lets you turn the given sprite in increments of 90 Degrees by the number of time
 >times: is the amount of times it will iterate of rotations of 90 degrees
 
 <b>Returns:</b><br>
->sprite: is the rotated matrix of the sprite
+>sprite: table ;is the rotated matrix of the sprite
 
 <br><br><br>
 
@@ -428,7 +425,7 @@ lets you check if an object (including groups) is on top of an other object (inc
 >isTransparent: if true an empty space colliding counts as a collision. Defaults to false if not supplied
 
 <b>Returns:</b><br>
->output: boolean
+>output: boolean ;is true if they collided else is false
 
 <br><br><br>
 
@@ -451,8 +448,31 @@ lets you check if a object (including groups) is rendered at certain X,Y Coordin
 >isTransparent: if true an empty space colliding counts as a collision. Defaults to false if not supplied
 
 <b>Returns:</b><br>
->output: boolean
+>output: boolean ;is true if the x,y point is on the object else is false
 
+<br><br><br>
+
+##### read
+
+```lua
+ gameLib:read(lvl: string, width: number, character: string|nil, textColor: number|nil, backgroundColor: number|nil)
+```
+<b>Description:</b><br>
+this function is like the read() function except it is like a window to write in
+
+<b>Arguments:</b><br>
+>lvl: is a string that gives it the hierarchy e.g: "test.string", must be a hologram object
+
+>width: is width of the window to write in note that the cursor also takes up 1 space so the amount of characters shown are width-1
+
+>character: if supplied replaces every input with this character like read(character)
+
+>textColor: is the color of the text as a color value
+
+>backgroundColor: is the color of the window to write in as a color value
+
+<b>Returns:</b><br>
+>userInput: string ;is the input from the user as a string
 <br>
 
 #### Rendering Based Functions
