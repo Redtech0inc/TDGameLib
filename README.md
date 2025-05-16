@@ -261,7 +261,7 @@ adds a Hologram/Text to the render<br>
 
 >dynamic: if false will render it behind every sprite but it can not adjust to the sprite background colors. doesn't change the way it collides! will default to true if not provided
 
->wrapped: if false won't wrap the text when to big (smart wrapping: wraps at last space if there is one in the current line otherwise wraps to screen size). will default to true if not provided
+>wrapped: if false won't wrap the text when to big (smart wrapping: wraps at last space if there is one in the current line otherwise wraps to screen size). will default to true if not provided (also should be turned off if the string is only made of spaces)
 
 >screenBound: if false the object can go as far off screen as it wants. defaults to true if not provided
 
@@ -455,10 +455,10 @@ lets you check if a object (including groups) is rendered at certain X,Y Coordin
 ##### read
 
 ```lua
- gameLib:read(lvl: string, width: number, character: string|nil, textColor: number|nil, backgroundColor: number|nil)
+ gameLib:read(lvl: string, width: number, character: string|nil)
 ```
 <b>Description:</b><br>
-this function is like the read() function except it is like a window to write in
+this function is like the read() function except it is like a window to write in most variables are just taken from the hologram object e.g: text color format and background color format
 
 <b>Arguments:</b><br>
 >lvl: is a string that gives it the hierarchy e.g: "test.string", must be a hologram object
@@ -466,10 +466,6 @@ this function is like the read() function except it is like a window to write in
 >width: is width of the window to write in note that the cursor also takes up 1 space so the amount of characters shown are width-1
 
 >character: if supplied replaces every input with this character like read(character)
-
->textColor: is the color of the text as a color value
-
->backgroundColor: is the color of the window to write in as a color value
 
 <b>Returns:</b><br>
 >userInput: string ;is the input from the user as a string
