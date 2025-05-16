@@ -15,20 +15,6 @@ local function isColorValue(colorValue)
     return false
 end
 
-local function getColorByValue(value)
-    local colorTable={
-        "white","orange","magenta","lightBlue",
-        "yellow","lime","pink","gray",
-        "lightGray","cyan","purple","blue",
-        "brown","green","red","black"
-    }
-    for i =1,#colorTable do
-        if value == colors[colorTable[i]] then
-            return colorTable[i]
-        end
-    end
-end
-
 local function toboolean(input)
     if input then
         return true
@@ -2135,7 +2121,7 @@ end
 ---@param textColor number|nil is the color of the text as a color value
 ---@param backgroundColor number|nil is the color of the window to write in as a color value
 ---@return string userInput is the input from the user as a string
-function gameLib:read(lvl, character, width, textColor, backgroundColor)
+function gameLib:read(lvl, width, character)
     if self.gameMEM.monitor then printError("ERRORecp: gameLib:read should not be used when rendering on a screen!") end
 
     local node = self:getSubTable(lvl)
@@ -2144,16 +2130,14 @@ function gameLib:read(lvl, character, width, textColor, backgroundColor)
     if not (node.text and node.y and node.x) then self.gameMEM.ErrFunc() error("Invalid hologram object") end
     if type(width) ~= "number" then self.gameMEM.ErrFunc() error("width must be a number") end
 
+
+    local preWrapped = node.wrapped
     local readOut, cursorPos = "", 0
     local displayText = ""
     local event, key
     local y = node.y
     local startX = node.x
-
-    -- Fix color assignment
-    local colorValue1, colorValue2 = tostring(getColorByValue(textColor)), tostring(getColorByValue(backgroundColor))
-    if isColorValue(textColor) then node.textColor = {[colorValue1] = 1} end
-    if isColorValue(backgroundColor) then node.textBackgroundColor = {[colorValue2] = 1} end
+    node.wrapped = false
 
     while key ~= keys.enter do
         term.setCursorBlink(true)
@@ -2206,6 +2190,7 @@ function gameLib:read(lvl, character, width, textColor, backgroundColor)
             end
         end
     end
+    node.wrapped = preWrapped
 
     term.setCursorBlink(false)
     term.setCursorPos(1, y + 1)
