@@ -2130,6 +2130,8 @@ function gameLib:read(lvl, width, character)
     if not (node.text and node.y and node.x) then self.gameMEM.ErrFunc() error("Invalid hologram object") end
     if type(width) ~= "number" then self.gameMEM.ErrFunc() error("width must be a number") end
 
+    local currentBackgroundColor = term.getBackgroundColor()
+    local currentTextColor = term.getTextColor()
 
     local preWrapped = node.wrapped
     local readOut, cursorPos = "", 0
@@ -2161,7 +2163,7 @@ function gameLib:read(lvl, width, character)
         -- Draw field
         node.text = {displayText}
         term.setCursorBlink(false)
-        self:render()
+        self:subRenderComponentBackgroundHolograms(lvl)
         term.setCursorBlink(true)
 
         -- Determine visual cursor X position
@@ -2194,6 +2196,8 @@ function gameLib:read(lvl, width, character)
 
     term.setCursorBlink(false)
     term.setCursorPos(1, y + 1)
+    term.setTextColor(currentTextColor)
+    term.setBackgroundColor(currentBackgroundColor)
     return readOut
 end
 
