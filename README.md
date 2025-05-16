@@ -458,7 +458,7 @@ lets you check if a object (including groups) is rendered at certain X,Y Coordin
  gameLib:read(lvl: string, width: number, character: string|nil)
 ```
 <b>Description:</b><br>
-this function is like the read() function except it is like a window to write in most variables are just taken from the hologram object e.g: text color format and background color format
+this function is like the read() function except it is like a window to write in. look of "window" is taken from the hologram object e.g: text color format and background color format
 
 <b>Arguments:</b><br>
 >lvl: is a string that gives it the hierarchy e.g: "test.string", must be a hologram object
