@@ -155,6 +155,23 @@ lets you load in a .nfp correctly!<br>
 <b>Returns:</b><br>
 >image: table ;the image as Matrix made of color values (read about color values [here](https://tweaked.cc/module/colors.html))
 
+<br>
+
+##### setPaletteColor
+```lua
+gameLib:setPaletteColor(color: number, hex: string|number, g: number|nil, b: number|nil)
+```
+<b>Description:</b><br>
+this function is like term.setPalletColor but this accepts hex too and works for both terminal and monitor depending on output object<br>
+<b>Arguments:</b><br>
+>color: the color you want to change
+
+>hex: can be supplied a string like "#ff0000" or "0xff0000" or a number like 20 in which case it becomes the red amount
+
+>g: is the green amount if hex was give a number then this must be a number as well
+
+>b: is the blue amount if hex was give a number then this must be a number as well
+
 <br><br><br>
 
 ##### getShapeSprite
@@ -455,7 +472,7 @@ lets you check if a object (including groups) is rendered at certain X,Y Coordin
 ##### read
 
 ```lua
- gameLib:read(lvl: string, width: number, character: string|nil)
+ gameLib:read(lvl: string, width: number, preFix: string|nil, character: string|nil)
 ```
 <b>Description:</b><br>
 this function is like the io.read() function except it is like a window to write in. Style of "window" is taken from the hologram object e.g: text color format and background color format
@@ -464,6 +481,8 @@ this function is like the io.read() function except it is like a window to write
 >lvl: is a string that gives it the hierarchy e.g: "test.string", must be a hologram object
 
 >width: is width of the window to write in note that the cursor also takes up 1 space so the amount of characters shown are width-1
+
+>preFix: if supplied is put in front of the typing space (will attach to the read window)
 
 >character: if supplied replaces every input with this character like read(character)
 
