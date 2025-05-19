@@ -1,12 +1,13 @@
 --functions for functions
 
+local colorTable = {
+    colors.white, colors.orange, colors.magenta, colors.lightBlue,
+    colors.yellow, colors.lime, colors.pink, colors.gray,
+    colors.lightGray, colors.cyan, colors.purple, colors.blue,
+    colors.brown, colors.green, colors.red, colors.black,
+}
+
 local function isColorValue(colorValue)
-    local colorTable={
-        colors.white, colors.orange, colors.magenta, colors.lightBlue,
-        colors.yellow, colors.lime, colors.pink, colors.gray,
-        colors.lightGray, colors.cyan, colors.purple, colors.blue,
-        colors.brown, colors.green, colors.red, colors.black,
-    }
     for color=1,#colorTable do
         if colorTable[color] == colorValue then
             return true
@@ -90,7 +91,30 @@ end
 gameLib={}
 gameLib.__index=gameLib
 
+function gameLib:gatherColorValues()
+    local colorList = {}
+    local r, g, b
+    for i = 1,#colorTable do
+        if self.gameMEM.monitor then
+            r,g,b = self.gameMEM.monitor.getPaletteColor(colorTable[i])
+        else
+            r,g,b = term.getPaletteColor(colorTable[i])
+        end
 
+        table.insert(colorList,{r,g,b})
+    end
+    return colorList
+end
+
+function gameLib:useColorValues(colorList)
+    for i =1,#colorList do
+        if self.gameMEM.monitor then
+            self.gameMEM.monitor.setPaletteColor(colorTable[i],colorList[i][1],colorList[i][2],colorList[i][3])
+        else
+            term.setPaletteColor(colorTable[i],colorList[i][1],colorList[i][2],colorList[i][3])
+        end
+    end
+end
 
 function gameLib:drawPixel(x, y, color)
     if self.gameMEM.monitor then
@@ -533,12 +557,11 @@ function gameLib:create(gameName,onErrorCall,useMonitor,monitorFilter,pixelSize,
     screenStartX = screenStartX or 1
     screenStartY = screenStartY or 1
 
-    onErrorCall = onErrorCall or function() return end
+    gameENV.gameMEM = {LVL={background={}}, ErrFunc=onErrorCall, colorList={}}
 
-    gameENV.gameMEM = {LVL={background={}},ErrFunc=onErrorCall}
+    if not onErrorCall then gameENV.gameMEM.ErrFunc = function() return end end
 
-    local width, height
-    local monitor
+    local width, height, monitor
     if useMonitor then
         if type(monitorFilter) == "table" then
             monitor = peripheral.find("monitor",function(name, monitor)
@@ -605,6 +628,9 @@ function gameLib:create(gameName,onErrorCall,useMonitor,monitorFilter,pixelSize,
     -- Ensure __index is set
     self.__index = self
 
+    gameENV.gameMEM.colorList=gameENV:gatherColorValues()
+    if not onErrorCall then gameENV.gameMEM.ErrFunc = function() gameENV:useColorValues(gameENV.gameMEM.colorList) end end
+
     local tablesToRegister={"objects.render.list.","objects.render.renderList."}
     for i=1,#tablesToRegister do
         gameENV:createSubTables(tablesToRegister[i].."backgroundHolograms")
@@ -649,6 +675,8 @@ function gameLib:quit(restart,exitMessage,exitMessageColor)
     if self.gameMEM.monitor then
         self.gameMEM.monitor.setTextScale(1)
     end
+
+    self:useColorValues(self.gameMEM.colorList)
 
     if not restart then
         if self.gameMEM.monitor then
@@ -1091,6 +1119,37 @@ function gameLib:loadImage(imgDir)
 
     --return image Matrix
     return newImg
+end
+
+---this is like term.setPalletColor but this accepts hex too and works for both terminal and monitor depending on output object
+---@param color number the color you want to change
+---@param hex string|number can be supplied a string like "#ff0000" or "0xff0000" or a number like 20 in which case it becomes the red amount
+---@param g number|nil is the green amount if hex was give a number then this must be a number as well
+---@param b number|nil is the blue amount if hex was give a number then this must be a number as well
+function gameLib:setPaletteColor(color,hex,g,b)
+    if not color or not hex then self.gameMEM.ErrFunc() error("no color and/or hex given!") return end
+    local r
+    if not g and not b then
+        if string.find(hex,"#",1,true) then
+            hex = string.gsub(hex,"#","0x",1)
+            if not tonumber(hex) then self.gameMEM.ErrFunc() error("hex argument was not acceptable may have been incorrectly formatted") end
+            hex = tonumber(string.format("0x%X", hex))
+        elseif type(hex) ~= "number" then
+            hex=tonumber(hex)
+        end
+        if not hex then self.gameMEM.ErrFunc() error("hex argument was not acceptable may have been incorrectly formatted") end
+        r,g,b=colors.unpackRGB(hex)
+    else
+        r=hex
+        if type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number" then
+            self.gameMEM.ErrFunc() error("hex,g and b argument must be number")
+        end
+    end
+    if self.gameMEM.monitor then
+        self.gameMEM.monitor.setPaletteColor(color,r,g,b)
+    else
+        term.setPaletteColor(color,r,g,b)
+    end
 end
 
 ---generates a sprite of geometric shapes
@@ -2118,10 +2177,9 @@ end
 ---@param lvl string is a string that gives it the hierarchy e.g: "test.string", must be a hologram object
 ---@param width number is width of the window to write in note that the cursor also takes up 1 space so the amount of characters shown are width-1
 ---@param character string|nil if supplied replaces every input with this character like read(character)
----@param textColor number|nil is the color of the text as a color value
----@param backgroundColor number|nil is the color of the window to write in as a color value
+---@param preFix string|nil if supplied is put in front of the typing space (will attach to the read window)
 ---@return string userInput is the input from the user as a string
-function gameLib:read(lvl, width, character)
+function gameLib:read(lvl, width, preFix, character)
     if self.gameMEM.monitor then printError("ERRORecp: gameLib:read should not be used when rendering on a screen!") end
 
     local node = self:getSubTable(lvl)
@@ -2130,6 +2188,7 @@ function gameLib:read(lvl, width, character)
     if not (node.text and node.y and node.x) then self.gameMEM.ErrFunc() error("Invalid hologram object") end
     if type(width) ~= "number" then self.gameMEM.ErrFunc() error("width must be a number") end
 
+    preFix = preFix or ""
     local currentBackgroundColor = term.getBackgroundColor()
     local currentTextColor = term.getTextColor()
 
@@ -2157,7 +2216,7 @@ function gameLib:read(lvl, width, character)
 
         -- Pad with spaces to keep width exact
         if #displayText < width then
-            displayText = displayText .. string.rep(" ", width - #displayText)
+            displayText = preFix..displayText .. string.rep(" ", width - #displayText)
         end
 
         -- Draw field
@@ -2168,11 +2227,11 @@ function gameLib:read(lvl, width, character)
 
         -- Determine visual cursor X position
         local relativeCursor = cursorPos - displayStart + 2  -- +2: +1 for Lua indexing, +1 to be "in front"
-        local cursorX = startX + math.min(math.max(0, relativeCursor - 1), width)
+        local cursorX = #preFix + startX + math.min(math.max(0, relativeCursor - 1), width)
         term.setCursorPos(cursorX, y)  -- add 1 to position it *after* the visible character
 
         -- Handle input
-        event, key = os.pullEvent()
+        event, key = os.pullEvent() 
 
         if event == "char" then
             local c = key
