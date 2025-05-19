@@ -1121,7 +1121,7 @@ function gameLib:loadImage(imgDir)
     return newImg
 end
 
----this is like term.setPalletColor but this accepts hex too and works for both terminal and monitor depending on output object
+---this function is like term.setPalletColor but this accepts hex too and works for both terminal and monitor depending on output object
 ---@param color number the color you want to change
 ---@param hex string|number can be supplied a string like "#ff0000" or "0xff0000" or a number like 20 in which case it becomes the red amount
 ---@param g number|nil is the green amount if hex was give a number then this must be a number as well
