@@ -472,7 +472,7 @@ lets you check if a object (including groups) is rendered at certain X,Y Coordin
 ##### read
 
 ```lua
- gameLib:read(lvl: string, width: number, preFix: string|nil, character: string|nil)
+gameLib:read(lvl: string, width: number, preFix: string|nil, character: string|nil, onChar: function|nil, onKey: function|nil)
 ```
 <b>Description:</b><br>
 this function is like the io.read() function except it is like a window to write in. Style of "window" is taken from the hologram object e.g: text color format and background color format
@@ -486,8 +486,54 @@ this function is like the io.read() function except it is like a window to write
 
 >character: if supplied replaces every input with this character like read(character)
 
+>onChar: if provided can determine behavior of function when a character(e.g:'c' or 'a') was entered
+
+>onKey: if provided can determine behavior of function when a key(e.g:'backspace' or 'left') was entered
+
 <b>Returns:</b><br>
 >userInput: string ;is the input from the user as a string
+
+<br>
+<b>function descriptions for onChar and onKey</b><br>
+the functions are each given:<br>
+`key` which is the pressed key.Every thing about keys you can look up [here](https://tweaked.cc/event/key.html)<br>
+`readOut` which is the already written text as a string<br>
+and `cursorPos` which is the current cursor position as a number. note that the actual cursor position is `cursorPos+1`<br>
+<br>
+these functions each return:<br>
+a string `readOut` which is the string that eventually gets displayed<br>
+and a number `cursorPos` which tells the gameLib:read() function where to pu the cursor once these functions yield. keep in mind that the cursor gets placed at `cursorPos+1`<br>
+
+presets to use:
+
+onChar:<br>
+```lua
+function onChar(key, readOut, cursorPos)
+    readOut = readOut:sub(1, cursorPos) .. key .. readOut:sub(cursorPos + 1)
+    cursorPos = cursorPos + 1
+
+    return readOut, cursorPos
+end
+```
+
+onKey:<br>
+```lua
+function onKey(key, readOut, cursorPos)
+    if key == keys.backspace and cursorPos > 0 then
+        readOut = readOut:sub(1, cursorPos - 1) .. readOut:sub(cursorPos + 1)
+        cursorPos = cursorPos - 1
+
+    elseif key == keys.left and cursorPos > 0 then
+        cursorPos = cursorPos - 1
+
+    elseif key == keys.right and cursorPos < #readOut then
+        cursorPos = cursorPos + 1
+    end
+
+    return readOut, cursorPos
+end
+```
+
 <br>
 
 #### Rendering Based Functions
@@ -497,10 +543,12 @@ this function is like the io.read() function except it is like a window to write
 ##### render
 
 ```lua
-gameLib:render()
+gameLib:render(lvl: table|nil)
 ```
 <b>Description:</b><br>
 lets you render the game<br>
+<b>Arguments:</b><br>
+>lvl: is a table that gives it the hierarchies to render e.g: {"test.string","test.number"}, if not supplied will render everything
 
 <br><br><br>
 
