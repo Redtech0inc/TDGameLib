@@ -496,6 +496,7 @@ this function is like the io.read() function except it is like a window to write
 <br>
 <b>function descriptions for onChar and onKey</b><br>
 the functions are each given:<br>
+
 `key` which is the pressed key.Every thing about keys you can look up [here](https://tweaked.cc/event/key.html)<br>
 `readOut` which is the already written text as a string<br>
 and `cursorPos` which is the current cursor position as a number. note that the actual cursor position is `cursorPos+1`<br>
