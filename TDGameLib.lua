@@ -87,9 +87,9 @@ local function fromBlit(value)
     if tostring(value) == "f" then return colors.black end
 end
 
---opens class table
+--opens class tables
 gameLib={}
-gameLib.__index=gameLib
+gameLib.__index = gameLib
 
 function gameLib:gatherColorValues()
     local colorList = {}
@@ -510,6 +510,43 @@ function gameLib:subRenderComponentHolograms(renderOBJ)
     end
 end
 
+function gameLib:renderSpecific(renderOBJ)
+    local tasks={backgroundHolograms={},sprites={},holograms={}}
+    local obj = self:getSubTable(renderOBJ)
+    table.insert(tasks,function()
+        self:subRenderComponentBackground()
+    end)
+    if (obj.type == "hologram" or obj.type == "hologramClone") and not obj.dynamic then
+        table.insert(tasks.backgroundHolograms,function()
+            self:subRenderComponentBackgroundHolograms(renderOBJ)
+        end)
+    elseif obj.type == "sprite" or obj.type == "spriteClone"then
+        table.insert(tasks.sprites,function()
+            self:subRenderComponentSprites(renderOBJ)
+        end)
+    elseif (obj.type == "hologram" or obj.type == "hologramClone") and obj.dynamic then
+        table.insert(tasks.holograms,function()
+            self:subRenderComponentHolograms(renderOBJ)
+        end)
+    elseif obj.type == "group" then
+        for i = 1, #obj.lvlTable do
+            local tks= self:renderSpecific(obj.lvlTable[i])
+
+            for i = 1,#tks.backgroundHolograms do
+                table.insert(tasks.backgroundHolograms,tks.backgroundHolograms[i])
+            end
+            for i = 1,#tks.sprites do
+                table.insert(tasks.sprites,tks.sprites[i])
+            end
+            for i = 1,#tks.holograms do
+                table.insert(tasks.holograms,tks.holograms[i])
+            end
+        end
+    end
+
+    return tasks
+end
+
 function gameLib:updateRenderLists()
 
     self.gameMEM.objects.render.renderList.backgroundHolograms={}
@@ -707,7 +744,7 @@ end
 ---@param fileDir string the directory of the file that you want to load
 function gameLib:useDataFile(fileDir)
 
-    if not fs.exists(fileDir) then self.gameMEM.ErrFunc() error("'"..tostring(fileDir).."' is not an existing File") return end
+    if not fs.exists(fileDir) then self.gameMEM.ErrFunc(self.gameMEM) error("'"..tostring(fileDir).."' is not an existing File") return end
 
     local index={data={"<body>","</body>" , "<background>","</background>","<sprites>","</sprites>","<clones>","</clones>","<holograms>","</holograms>","<groups>","</groups>" , "<object>","</object>","<image>","</image>","<br>"}, lua={"{","}" , "background={","},","sprites={","},","clones={","},","holograms={","},","groups={","}," , "{","},","{{","}}","},{"}}
     local output = ""
@@ -739,7 +776,7 @@ function gameLib:useDataFile(fileDir)
     if textutils.unserialise(output) then
         output = textutils.unserialise(output)
     else
-        self.gameMEM.ErrFunc()
+        self.gameMEM.ErrFunc(self.gameMEM)
         error("'"..tostring(fileDir).."' doesn't contain valid Data!")
     end
 
@@ -837,7 +874,7 @@ function gameLib:makeDataFile(fileDir,compact)
                 if data.clones == nil then
                     data.clones ={}
                 end
-                
+
                 table.insert(data.clones, {node.text, list[i][2], node.x, node.y, node.isGrouped})
             end
         end
@@ -871,7 +908,7 @@ function gameLib:makeDataFile(fileDir,compact)
                 if data.clones == nil then
                     data.clones ={}
                 end
-                
+
                 table.insert(data.clones, {node.text, list[i][2], node.x, node.y, node.isGrouped})
             end
         end
@@ -1090,7 +1127,7 @@ end
 ---@param imgDir string is the path that get's loaded as image table
 ---@return table image the image as Matrix made of color values
 function gameLib:loadImage(imgDir)
-    if not fs.exists(imgDir) then self.gameMEM.ErrFunc() error("'"..tostring(imgDir).."' is not an existing File") return end
+    if not fs.exists(imgDir) then self.gameMEM.ErrFunc(self.gameMEM) error("'"..tostring(imgDir).."' is not an existing File") return end
 
     --make a matrix out of the imageFile's Content
     local img={}
@@ -1127,22 +1164,22 @@ end
 ---@param g number|nil is the green amount if hex was give a number then this must be a number as well
 ---@param b number|nil is the blue amount if hex was give a number then this must be a number as well
 function gameLib:setPaletteColor(color,hex,g,b)
-    if not color or not hex then self.gameMEM.ErrFunc() error("no color and/or hex given!") return end
+    if not color or not hex then self.gameMEM.ErrFunc(self.gameMEM) error("no color and/or hex given!") return end
     local r
     if not g and not b then
         if string.find(hex,"#",1,true) then
             hex = string.gsub(hex,"#","0x",1)
-            if not tonumber(hex) then self.gameMEM.ErrFunc() error("hex argument was not acceptable may have been incorrectly formatted") end
+            if not tonumber(hex) then self.gameMEM.ErrFunc(self.gameMEM) error("hex argument was not acceptable may have been incorrectly formatted") end
             hex = tonumber(string.format("0x%X", hex))
         elseif type(hex) ~= "number" then
             hex=tonumber(hex)
         end
-        if not hex then self.gameMEM.ErrFunc() error("hex argument was not acceptable may have been incorrectly formatted") end
+        if not hex then self.gameMEM.ErrFunc(self.gameMEM) error("hex argument was not acceptable may have been incorrectly formatted") end
         r,g,b=colors.unpackRGB(hex)
     else
         r=hex
         if type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number" then
-            self.gameMEM.ErrFunc() error("hex,g and b argument must be number")
+            self.gameMEM.ErrFunc(self.gameMEM) error("hex,g and b argument must be number")
         end
     end
     if self.gameMEM.monitor then
@@ -1221,7 +1258,7 @@ end
 ---@param times number is the amount of times it will iterate of rotations of 90 degrees
 ---@return table sprite is the rotated matrix of the sprite
 function gameLib:turnSprite(sprite, times)
-    if not sprite then self.gameMEM.ErrFunc() error("the sprite variable has to be a 2D Image(Matrix)") end
+    if not sprite then self.gameMEM.ErrFunc(self.gameMEM) error("the sprite variable has to be a 2D Image(Matrix)") end
     if type(times) ~= "number" then times = 0 end
 
     times = times % 4  -- Only need 0 to 3 turns
@@ -1274,7 +1311,7 @@ function gameLib:addSprite(lvl,img,priority,x,y,screenBound)
 
     if screenBound == nil then screenBound = true end
 
-    if type(img) ~= "table" then self.gameMEM.ErrFunc() error("image has to be a table ('"..type(img).."' was supplied)") end
+    if type(img) ~= "table" then self.gameMEM.ErrFunc(self.gameMEM) error("image has to be a table ('"..type(img).."' was supplied)") end
 
     if type(priority) ~= "number" then
         priority=#self.gameMEM.objects.render.list.sprites+1
@@ -1481,7 +1518,7 @@ function gameLib:cloneObject(lvl,priority,x,y,groupClones,screenBound)
     local node =self:getSubTable(lvl)
 
     if not node then return end
-    if node.type == "spriteClone" or node.type == "hologramClone" or node.type == "group" then self.gameMEM.ErrFunc() error("input object can't be a clone/group Object") end
+    if node.type == "spriteClone" or node.type == "hologramClone" or node.type == "group" then self.gameMEM.ErrFunc(self.gameMEM) error("input object can't be a clone/group Object") end
 
     self:updateRenderLists()
 
@@ -1490,7 +1527,7 @@ function gameLib:cloneObject(lvl,priority,x,y,groupClones,screenBound)
             priority=#self.gameMEM.objects.render.list.sprites+1
         end
 
-        if self.gameMEM.objects.render.renderList.sprites[priority] == lvl then self.gameMEM.ErrFunc() error("can't override the original object") end
+        if self.gameMEM.objects.render.renderList.sprites[priority] == lvl then self.gameMEM.ErrFunc(self.gameMEM) error("can't override the original object") end
 
         local img = node.sprite
 
@@ -1537,7 +1574,7 @@ function gameLib:cloneObject(lvl,priority,x,y,groupClones,screenBound)
             end
         end
 
-        if self.gameMEM.objects.render.renderList.holograms[priority] == lvl then self.gameMEM.ErrFunc() error("can't override the original object") end
+        if self.gameMEM.objects.render.renderList.holograms[priority] == lvl then self.gameMEM.ErrFunc(self.gameMEM) error("can't override the original object") end
 
         if type(x) ~= "number" then
             x=1
@@ -1600,7 +1637,7 @@ function gameLib:cloneObject(lvl,priority,x,y,groupClones,screenBound)
     end
 end
 
----lets you group objects together. They will still render separately and their behavior won't change at all. Is useful if you want to check for multiple collisions at once or change common data for all objects. !!! WARNING: groups can contain groups may have impact on other functions like gameLib:isColliding or gameLib:changeGroupData !!!
+---lets you group objects together. They will still render separately and their behavior won't change at all. Is useful if you want to check for multiple collisions at once or change common data for all objects. !!! WARNING: groups can contain groups may have impact on other functions like gameLib:isColliding or gameLib:changeGroupData or gameLib:render() !!!
 ---@param groupLvl string is a string that gives it the hierarchy e.g: "test.string"
 ---@param lvlTable table is a table of object (= sprites, holograms, clones) hierarchies that are a part of this group e.g: "test.string","test.number",ect...
 function gameLib:groupObjects(groupLvl,lvlTable)
@@ -1621,7 +1658,7 @@ function gameLib:addObjectToGroup(groupLvl,lvlTable)
 
     local node = self:getSubTable(groupLvl)
 
-    if not node.lvlTable then self.gameMEM.ErrFunc() error("Can't modify non existing group") end
+    if not node.lvlTable then self.gameMEM.ErrFunc(self.gameMEM) error("Can't modify non existing group") end
 
     for i=1,table.maxn(lvlTable) do
 
@@ -1638,7 +1675,7 @@ function gameLib:changeGroupData(groupLvl,x,y)
 
     local node = self:getSubTable(groupLvl)
 
-    if not node or not node.lvlTable then self.gameMEM.ErrFunc() error("Can't modify non existing group") end
+    if not node or not node.lvlTable then self.gameMEM.ErrFunc(self.gameMEM) error("Can't modify non existing group") end
 
     local groupList = node.lvlTable
 
@@ -1765,7 +1802,7 @@ end
 function gameLib:removeObjectFromGroup(groupLvl,lvlTable)
     local node = self:getSubTable(groupLvl)
 
-    if not node.lvlTable then self.gameMEM.ErrFunc() error("Can't modify non existing group") end
+    if not node.lvlTable then self.gameMEM.ErrFunc(self.gameMEM) error("Can't modify non existing group") end
 
     for i=1,table.maxn(node.lvlTable) do
 
@@ -1786,7 +1823,7 @@ end
 ---@returns boolean
 function gameLib:isColliding(lvl, lvl2, isTransparent)
     if type(lvl) ~= "string" or type(lvl2) ~= "string" then
-        self.gameMEM.ErrFunc()
+        self.gameMEM.ErrFunc(self.gameMEM)
         error("lvl must be an object name as string")
     end
 
@@ -2058,11 +2095,11 @@ end
 ---@returns boolean
 function gameLib:isCollidingRaw(xIn, yIn, lvl, isTransparent)
     if type(lvl) ~= "string" then
-        self.gameMEM.ErrFunc()
+        self.gameMEM.ErrFunc(self.gameMEM)
         error("lvl must be the object name as string")
     end
     if type(xIn) ~="number" or type(yIn) ~= "number" then
-        self.gameMEM.ErrFunc()
+        self.gameMEM.ErrFunc(self.gameMEM)
         error("argument 1 and 2 must be numbers")
     end
     local obj = self:getSubTable(lvl)
@@ -2178,17 +2215,20 @@ end
 ---@param width number is width of the window to write in note that the cursor also takes up 1 space so the amount of characters shown are width-1
 ---@param character string|nil if supplied replaces every input with this character like read(character)
 ---@param preFix string|nil if supplied is put in front of the typing space (will attach to the read window)
+---@param onChar function|nil if provided can determine behavior of function when a character(e.g:'c' or 'a') was entered
+---@param onKey function|nil if provided can determine behavior of function when a key(e.g:'backspace' or 'left') was entered
 ---@return string userInput is the input from the user as a string
-function gameLib:read(lvl, width, preFix, character)
+function gameLib:read(lvl, width, preFix, character, onChar, onKey)
     if self.gameMEM.monitor then printError("ERRORecp: gameLib:read should not be used when rendering on a screen!") end
 
     local node = self:getSubTable(lvl)
 
-    if not node then self.gameMEM.ErrFunc() error("1st argument must be an existing hologram object") end
-    if not (node.text and node.y and node.x) then self.gameMEM.ErrFunc() error("Invalid hologram object") end
-    if type(width) ~= "number" then self.gameMEM.ErrFunc() error("width must be a number") end
+    if not node then self.gameMEM.ErrFunc(self.gameMEM) error("1st argument must be an existing hologram object") end
+    if not (node.text and node.y and node.x) then self.gameMEM.ErrFunc(self.gameMEM) error("Invalid hologram object") end
+    if type(width) ~= "number" then self.gameMEM.ErrFunc(self.gameMEM) error("width must be a number") end
 
     preFix = preFix or ""
+    preFix = tostring(preFix)
     local currentBackgroundColor = term.getBackgroundColor()
     local currentTextColor = term.getTextColor()
 
@@ -2199,6 +2239,32 @@ function gameLib:read(lvl, width, preFix, character)
     local y = node.y
     local startX = node.x
     node.wrapped = false
+
+    if type(onChar) ~= "function" then 
+        onChar = function(key, readOut, cursorPos)
+            readOut = readOut:sub(1, cursorPos) .. key .. readOut:sub(cursorPos + 1)
+            cursorPos = cursorPos + 1
+
+            return readOut, cursorPos
+        end
+    end
+
+    if type(onKey) ~= "function" then
+        onKey = function(key, readOut, cursorPos)
+            if key == keys.backspace and cursorPos > 0 then
+                readOut = readOut:sub(1, cursorPos - 1) .. readOut:sub(cursorPos + 1)
+                cursorPos = cursorPos - 1
+
+            elseif key == keys.left and cursorPos > 0 then
+                cursorPos = cursorPos - 1
+
+            elseif key == keys.right and cursorPos < #readOut then
+                cursorPos = cursorPos + 1
+            end
+
+            return readOut, cursorPos
+        end
+    end
 
     while key ~= keys.enter do
         term.setCursorBlink(true)
@@ -2216,8 +2282,10 @@ function gameLib:read(lvl, width, preFix, character)
 
         -- Pad with spaces to keep width exact
         if #displayText < width then
-            displayText = preFix..displayText .. string.rep(" ", width - #displayText)
+            displayText =displayText .. string.rep(" ", width - #displayText)
         end
+
+        displayText = preFix .. displayText
 
         -- Draw field
         node.text = {displayText}
@@ -2234,22 +2302,13 @@ function gameLib:read(lvl, width, preFix, character)
         event, key = os.pullEvent() 
 
         if event == "char" then
-            local c = key
-            readOut = readOut:sub(1, cursorPos) .. c .. readOut:sub(cursorPos + 1)
-            cursorPos = cursorPos + 1
-
+            readOut, cursorPos = onChar(key, readOut, cursorPos)
         elseif event == "key" then
-            if key == keys.backspace and cursorPos > 0 then
-                readOut = readOut:sub(1, cursorPos - 1) .. readOut:sub(cursorPos + 1)
-                cursorPos = cursorPos - 1
-
-            elseif key == keys.left and cursorPos > 0 then
-                cursorPos = cursorPos - 1
-
-            elseif key == keys.right and cursorPos < #readOut then
-                cursorPos = cursorPos + 1
-            end
+            readOut, cursorPos = onKey(key, readOut, cursorPos)
         end
+        if type(cursorPos) ~= "number" then self.gameMEM.ErrFunc(self.gameMEM) error("ERROR: onKey or onChar returned invalid cursorPos (returned type: '"..type(cursorPos).."') should have been type: 'number'") end
+        if type(readOut) ~= "string" then self.gameMEM.ErrFunc(self.gameMEM) error("ERROR: onKey or onChar did not return a string (returned type: '"..type(readOut).."') should have been type: 'string'") end
+        cursorPos = math.floor(cursorPos)
     end
     node.wrapped = preWrapped
 
@@ -2263,8 +2322,8 @@ end
 --rendering based functions
 
 ---lets you render the game
-function gameLib:render()
-    
+---@param lvl table|nil is a table that gives it the hierarchies to render e.g: {"test.string","test.number"}, if not supplied will render everything
+function gameLib:render(lvl)
     for i=1,#self.gameMEM.dataFileCache.clones do
         if self.gameMEM.dataFileCache.clones[i] then
             if self:cloneObject(self.gameMEM.dataFileCache.clones[i][1],self.gameMEM.dataFileCache.clones[i][2],self.gameMEM.dataFileCache.clones[i][3],self.gameMEM.dataFileCache.clones[i][4],self.gameMEM.dataFileCache.clones[i][5],self.gameMEM.dataFileCache.clones[i][6]) then
@@ -2277,6 +2336,26 @@ function gameLib:render()
     local CurX, CurY
     local currentBackgroundColor
     local currentTextColor
+
+    if lvl then
+        for i=1,#lvl do
+            local tasks={}
+            local tks = self:renderSpecific(lvl[i])
+
+            for i = 1,#tks.backgroundHolograms do
+                table.insert(tasks,tks.backgroundHolograms[i])
+            end
+            for i = 1,#tks.sprites do
+                table.insert(tasks,tks.sprites[i])
+            end
+            for i = 1,#tks.holograms do
+                table.insert(tasks,tks.holograms[i])
+            end
+
+            parallel.waitForAll(table.unpack(tasks))
+            return
+        end
+    end
 
     if self.gameMEM.monitor then
         CurX, CurY = self.gameMEM.monitor.getCursorPos()
