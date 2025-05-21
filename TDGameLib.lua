@@ -2235,13 +2235,13 @@ function gameLib:read(lvl, width, preFix, character, onChar, onKey)
     local preWrapped = node.wrapped
     local readOut, cursorPos = "", 0
     local displayText = ""
-    local event, key, isHeld
+    local event, key, isHeldPre, isHeld
     local y = node.y
     local startX = node.x
     node.wrapped = false
 
     if type(onChar) ~= "function" then 
-        onChar = function(key, readOut, cursorPos, isHeld)
+        onChar = function(key, readOut, cursorPos)
             readOut = readOut:sub(1, cursorPos) .. key .. readOut:sub(cursorPos + 1)
             cursorPos = cursorPos + 1
 
@@ -2250,7 +2250,7 @@ function gameLib:read(lvl, width, preFix, character, onChar, onKey)
     end
 
     if type(onKey) ~= "function" then
-        onKey = function(key, readOut, cursorPos, isHeld)
+        onKey = function(key, readOut, cursorPos)
             if key == keys.backspace and cursorPos > 0 then
                 readOut = readOut:sub(1, cursorPos - 1) .. readOut:sub(cursorPos + 1)
                 cursorPos = cursorPos - 1
@@ -2299,12 +2299,12 @@ function gameLib:read(lvl, width, preFix, character, onChar, onKey)
         term.setCursorPos(cursorX, y)  -- add 1 to position it *after* the visible character
 
         -- Handle input
-        event, key, isHeld = os.pullEvent()
+        event, key = os.pullEvent()
 
         if event == "char" then
-            readOut, cursorPos = onChar(key, readOut, cursorPos, isHeld)
+            readOut, cursorPos = onChar(key, readOut, cursorPos)
         elseif event == "key" then
-            readOut, cursorPos = onKey(key, readOut, cursorPos, isHeld)
+            readOut, cursorPos = onKey(key, readOut, cursorPos)
         end
         if type(cursorPos) ~= "number" then self.gameMEM.ErrFunc(self.gameMEM) error("ERROR: onKey or onChar returned invalid cursorPos (returned type: '"..type(cursorPos).."') should have been type: 'number'") end
         if type(readOut) ~= "string" then self.gameMEM.ErrFunc(self.gameMEM) error("ERROR: onKey or onChar did not return a string (returned type: '"..type(readOut).."') should have been type: 'string'") end
