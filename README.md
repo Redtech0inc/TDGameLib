@@ -503,7 +503,7 @@ and `cursorPos` which is the current cursor position as a number. note that the 
 <br>
 these functions each <b>must</b> return:<br>
 a string `readOut` which is the string that eventually gets displayed<br>
-and a number `cursorPos` which tells the gameLib:read() function where to pu the cursor once these functions yield. keep in mind that the cursor gets placed at `cursorPos+1`<br>
+and a number `cursorPos` which tells the gameLib:read() function where to put the cursor once these functions yield. keep in mind that the cursor gets placed at `cursorPos+1`<br>
 
 presets to use:
 
