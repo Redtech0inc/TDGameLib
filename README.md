@@ -497,9 +497,11 @@ this function is like the io.read() function except it is like a window to write
 <b>function descriptions for onChar and onKey</b><br>
 the functions are each given:<br>
 
-`key` which is the pressed key.Every thing about the key event(whose key value is parsed) you can look up [here](https://tweaked.cc/event/key.html)<br>
+`key` which is the pressed key.<br>
 `readOut` which is the already written text as a string<br>
 and `cursorPos` which is the current cursor position as a number. note that the actual cursor position is `cursorPos+1`<br>
+`isHeld` which here is not used but is `true` if the key has been held down<br>
+every thing about the key event(whose key and is_held value is parsed) you can look up [here](https://tweaked.cc/event/key.html)<br>
 <br>
 these functions each <b>must</b> return:<br>
 a string `readOut` which is the string that eventually gets displayed<br>
@@ -509,7 +511,7 @@ presets to use:
 
 onChar:<br>
 ```lua
-function onChar(key, readOut, cursorPos)
+function onChar(key, readOut, cursorPos, isHeld)
     readOut = readOut:sub(1, cursorPos) .. key .. readOut:sub(cursorPos + 1)
     cursorPos = cursorPos + 1
 
@@ -519,7 +521,7 @@ end
 
 onKey:<br>
 ```lua
-function onKey(key, readOut, cursorPos)
+function onKey(key, readOut, cursorPos,  isHeld)
     if key == keys.backspace and cursorPos > 0 then
         readOut = readOut:sub(1, cursorPos - 1) .. readOut:sub(cursorPos + 1)
         cursorPos = cursorPos - 1
