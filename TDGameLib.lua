@@ -2235,13 +2235,13 @@ function gameLib:read(lvl, width, preFix, character, onChar, onKey)
     local preWrapped = node.wrapped
     local readOut, cursorPos = "", 0
     local displayText = ""
-    local event, key
+    local event, key, isHeld
     local y = node.y
     local startX = node.x
     node.wrapped = false
 
     if type(onChar) ~= "function" then 
-        onChar = function(key, readOut, cursorPos)
+        onChar = function(key, readOut, cursorPos, isHeld)
             readOut = readOut:sub(1, cursorPos) .. key .. readOut:sub(cursorPos + 1)
             cursorPos = cursorPos + 1
 
@@ -2250,7 +2250,7 @@ function gameLib:read(lvl, width, preFix, character, onChar, onKey)
     end
 
     if type(onKey) ~= "function" then
-        onKey = function(key, readOut, cursorPos)
+        onKey = function(key, readOut, cursorPos, isHeld)
             if key == keys.backspace and cursorPos > 0 then
                 readOut = readOut:sub(1, cursorPos - 1) .. readOut:sub(cursorPos + 1)
                 cursorPos = cursorPos - 1
@@ -2299,12 +2299,12 @@ function gameLib:read(lvl, width, preFix, character, onChar, onKey)
         term.setCursorPos(cursorX, y)  -- add 1 to position it *after* the visible character
 
         -- Handle input
-        event, key = os.pullEvent() 
+        event, key, isHeld = os.pullEvent()
 
         if event == "char" then
-            readOut, cursorPos = onChar(key, readOut, cursorPos)
+            readOut, cursorPos = onChar(key, readOut, cursorPos, isHeld)
         elseif event == "key" then
-            readOut, cursorPos = onKey(key, readOut, cursorPos)
+            readOut, cursorPos = onKey(key, readOut, cursorPos, isHeld)
         end
         if type(cursorPos) ~= "number" then self.gameMEM.ErrFunc(self.gameMEM) error("ERROR: onKey or onChar returned invalid cursorPos (returned type: '"..type(cursorPos).."') should have been type: 'number'") end
         if type(readOut) ~= "string" then self.gameMEM.ErrFunc(self.gameMEM) error("ERROR: onKey or onChar did not return a string (returned type: '"..type(readOut).."') should have been type: 'string'") end
